@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo, Component } from "react";
 import Image from "next/image";
 import {
   Zap,
@@ -24,7 +24,14 @@ import {
   Clock,
   ArrowRight,
   Terminal,
+  ArrowUp,
+  Activity,
+  Cpu,
+  HardDrive,
+  Play,
+  RotateCcw,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 /* Simple GitHub SVG icon since lucide-react doesn't export one */
 function GithubIcon({ className }: { className?: string }) {
@@ -44,6 +51,7 @@ function GithubIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
 import {
   Accordion,
   AccordionContent,
@@ -52,6 +60,54 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+
+/* ────────────────────────────────────────────
+   ERROR BOUNDARY COMPONENT
+   ──────────────────────────────────────────── */
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends Component<
+  { children: React.ReactNode },
+  ErrorBoundaryState
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-8">
+          <div className="glass-depth p-8 rounded-2xl max-w-md text-center">
+            <AlertTriangle className="w-12 h-12 text-owl-amber mx-auto mb-4" />
+            <h2 className="text-xl font-bold mb-2 text-owl-cyan">
+              Something went wrong
+            </h2>
+            <p className="text-foreground/80 mb-4">
+              {this.state.error?.message || "An unexpected error occurred."}
+            </p>
+            <button
+              onClick={() => this.setState({ hasError: false, error: null })}
+              className="px-4 py-2 rounded-lg bg-owl-cyan/20 border border-owl-cyan/40 text-owl-cyan hover:bg-owl-cyan/30 transition-all"
+              aria-label="Retry rendering"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 /* ────────────────────────────────────────────
    SECTION REVEAL HOOK
@@ -83,7 +139,6 @@ function useSectionReveal() {
    FLOATING PARTICLES BACKGROUND
    ──────────────────────────────────────────── */
 function FloatingParticles() {
-  // Pre-computed particle data to avoid Math.random() during render
   const particles = useMemo(() => {
     const seededRandom = (seed: number) => {
       const x = Math.sin(seed * 9301 + 49297) * 49297;
@@ -116,26 +171,24 @@ function FloatingParticles() {
     }));
   }, []);
 
-  const particleColors = [
+  const particleColors = useMemo(() => [
     { bg: "rgba(0,212,255,0.4)", shadow: "0 0 6px rgba(0,212,255,0.3)" },
     { bg: "rgba(16,185,129,0.4)", shadow: "0 0 6px rgba(16,185,129,0.3)" },
     { bg: "rgba(224,64,251,0.4)", shadow: "0 0 6px rgba(224,64,251,0.3)" },
-  ];
+  ], []);
 
-  const orbGradients = [
+  const orbGradients = useMemo(() => [
     "radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%)",
     "radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%)",
     "radial-gradient(circle, rgba(224,64,251,0.06) 0%, transparent 70%)",
-  ];
+  ], []);
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-      {/* Radial gradient overlays */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_50%,rgba(0,212,255,0.06)_0%,transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_20%,rgba(224,64,251,0.05)_0%,transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_80%,rgba(16,185,129,0.04)_0%,transparent_50%)]" />
 
-      {/* Floating orbs */}
       {particles.map((p, i) => (
         <div
           key={i}
@@ -153,7 +206,6 @@ function FloatingParticles() {
         />
       ))}
 
-      {/* Larger slow-moving orbs - autopoietic breathing */}
       {orbs.map((orb, i) => (
         <div
           key={`orb-${i}`}
@@ -171,7 +223,6 @@ function FloatingParticles() {
         />
       ))}
 
-      {/* Morphing blob */}
       <div
         className="absolute"
         style={{
@@ -207,7 +258,6 @@ function FloatingParticles() {
 function OwlEyes() {
   return (
     <div className="flex items-center justify-center gap-4 mb-6" aria-hidden="true">
-      {/* Left eye */}
       <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#0a0a1a] to-[#1a1a3e] border-2 border-owl-cyan/30 shadow-[0_0_20px_rgba(0,212,255,0.2)]">
         <div
           className="absolute inset-0 flex items-center justify-center"
@@ -225,8 +275,6 @@ function OwlEyes() {
           </div>
         </div>
       </div>
-
-      {/* Right eye */}
       <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#0a0a1a] to-[#1a1a3e] border-2 border-owl-green/30 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
         <div
           className="absolute inset-0 flex items-center justify-center"
@@ -249,12 +297,16 @@ function OwlEyes() {
 }
 
 /* ────────────────────────────────────────────
-   NAV BAR
+   NAV BAR WITH ACTIVE SECTION HIGHLIGHTING
    ──────────────────────────────────────────── */
 const NAV_ITEMS = [
   { label: "Architecture", href: "#architecture" },
   { label: "StreamRacer", href: "#streamracer" },
   { label: "Features", href: "#features" },
+  { label: "Circuits", href: "#circuit-breaker" },
+  { label: "Protocol", href: "#protocol" },
+  { label: "Ecosystem", href: "#ecosystem" },
+  { label: "Memory", href: "#memory" },
   { label: "Timeline", href: "#timeline" },
   { label: "Install", href: "#install" },
   { label: "Matrix", href: "#matrix" },
@@ -263,6 +315,7 @@ const NAV_ITEMS = [
 function NavBar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -270,8 +323,30 @@ function NavBar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const sectionIds = NAV_ITEMS.map((item) => item.href.replace("#", ""));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: "-20% 0px -60% 0px" }
+    );
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <nav
+      role="banner"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? "glass-strong shadow-lg shadow-black/20"
@@ -280,45 +355,59 @@ function NavBar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16">
-          {/* Logo */}
           <a href="#" className="flex items-center gap-2 group">
             <span className="text-owl-cyan font-bold text-lg sm:text-xl tracking-tight group-hover:text-glow-cyan transition-all">
               🦉 OWL-ORCA
             </span>
             <Badge
               variant="outline"
-              className="text-[11px] sm:text-xs border-owl-cyan/40 text-owl-cyan bg-owl-cyan/10"
+              className="text-xs border-owl-cyan/40 text-owl-cyan bg-owl-cyan/10"
             >
               v8.0
             </Badge>
           </a>
 
           {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-1">
-            {NAV_ITEMS.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="px-3 py-1.5 text-sm text-foreground/70 hover:text-owl-cyan transition-colors rounded-lg hover:bg-white/5"
-              >
-                {item.label}
-              </a>
-            ))}
+          <div className="hidden lg:flex items-center gap-0.5">
+            {NAV_ITEMS.map((item) => {
+              const isActive = activeSection === item.href.replace("#", "");
+              return (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className={`relative px-2.5 py-1.5 text-sm transition-colors rounded-lg hover:bg-white/5 ${
+                    isActive
+                      ? "text-owl-cyan"
+                      : "text-foreground/80 hover:text-owl-cyan"
+                  }`}
+                  aria-current={isActive ? "true" : undefined}
+                >
+                  {item.label}
+                  {isActive && (
+                    <motion.div
+                      layoutId="nav-indicator"
+                      className="absolute bottom-0 left-2 right-2 h-0.5 bg-owl-cyan rounded-full"
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                </a>
+              );
+            })}
             <Separator orientation="vertical" className="mx-2 h-5 bg-white/10" />
             <a
-              href="https://github.com/marktantongco/owl-orca"
+              href="https://github.com/marktantongco/owl-orca-v3"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-foreground/70 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-foreground/80 hover:text-white transition-colors"
+              aria-label="View on GitHub"
             >
               <GithubIcon className="w-4 h-4" />
               GitHub
             </a>
           </div>
 
-          {/* Mobile hamburger */}
           <button
-            className="md:hidden p-2 text-foreground/70 hover:text-white"
+            className="lg:hidden p-2 text-foreground/80 hover:text-white"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
           >
@@ -327,33 +416,97 @@ function NavBar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="md:hidden glass-strong border-t border-white/5">
-          <div className="px-4 py-3 space-y-1">
-            {NAV_ITEMS.map((item) => (
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="lg:hidden glass-strong border-t border-white/5 overflow-hidden"
+          >
+            <div className="px-4 py-3 space-y-1">
+              {NAV_ITEMS.map((item) => {
+                const isActive = activeSection === item.href.replace("#", "");
+                return (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`block px-3 py-2 text-sm transition-colors rounded-lg hover:bg-white/5 ${
+                      isActive
+                        ? "text-owl-cyan bg-owl-cyan/5"
+                        : "text-foreground/80 hover:text-owl-cyan"
+                    }`}
+                  >
+                    {item.label}
+                  </a>
+                );
+              })}
               <a
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2 text-sm text-foreground/70 hover:text-owl-cyan transition-colors rounded-lg hover:bg-white/5"
+                href="https://github.com/marktantongco/owl-orca-v3"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-foreground/80 hover:text-white transition-colors"
+                aria-label="View on GitHub"
               >
-                {item.label}
+                <GithubIcon className="w-4 h-4" />
+                GitHub
               </a>
-            ))}
-            <a
-              href="https://github.com/marktantongco/owl-orca"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-3 py-2 text-sm text-foreground/70 hover:text-white transition-colors"
-            >
-              <GithubIcon className="w-4 h-4" />
-              GitHub
-            </a>
-          </div>
-        </div>
-      )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
+  );
+}
+
+/* ────────────────────────────────────────────
+   SCROLL TO TOP BUTTON
+   ──────────────────────────────────────────── */
+function ScrollToTopButton() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setVisible(window.scrollY > window.innerHeight * 0.5);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-owl-cyan/20 border border-owl-cyan/40 text-owl-cyan flex items-center justify-center hover:bg-owl-cyan/30 transition-all shadow-lg shadow-black/20"
+          aria-label="Scroll to top"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <ArrowUp className="w-5 h-5" />
+        </motion.button>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ────────────────────────────────────────────
+   SECTION SEPARATOR
+   ──────────────────────────────────────────── */
+function SectionSeparator({ color = "owl-cyan" }: { color?: string }) {
+  return (
+    <div
+      className="h-0.5 bg-gradient-to-r from-transparent via-owl-cyan/20 to-transparent my-0"
+      style={{
+        background: `linear-gradient(to right, transparent, var(--color-${color}, #00d4ff) / 0.25, transparent)`,
+      }}
+    />
   );
 }
 
@@ -370,22 +523,20 @@ function HeroSection() {
     >
       <FloatingParticles />
 
-      <div
-        className={`relative z-10 text-center max-w-4xl mx-auto transition-all duration-1000 ${
-          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={visible ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="relative z-10 text-center max-w-4xl mx-auto"
       >
-        {/* Owl Eyes */}
         <OwlEyes />
 
-        {/* Title */}
         <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-4">
           <span className="bg-gradient-to-r from-owl-cyan via-owl-green to-owl-magenta bg-clip-text text-transparent">
             OWL-ORCA
           </span>
         </h1>
 
-        {/* Subtitle */}
         <p className="text-xl sm:text-2xl md:text-3xl text-foreground/80 max-w-2xl mx-auto mb-6 leading-relaxed">
           AI Gateway with{" "}
           <span className="text-owl-cyan font-semibold">Stream Racing</span>,{" "}
@@ -393,50 +544,48 @@ function HeroSection() {
           <span className="text-owl-magenta font-semibold">Circuit Breakers</span>
         </p>
 
-        {/* Tagline */}
-        <p className="text-sm sm:text-base text-foreground/60 mb-8">
+        <p className="text-sm sm:text-base text-foreground/70 mb-8">
           Free AI for everyone. Race multiple providers. First byte wins.
         </p>
 
-        {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           <a
             href="#install"
-            className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-owl-cyan/10 border border-owl-cyan/30 text-owl-cyan hover:bg-owl-cyan/20 hover:border-owl-cyan/50 transition-all hover:shadow-[0_0_20px_rgba(0,212,255,0.2)] hover:border-gradient"
+            className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-owl-cyan/10 border border-owl-cyan/40 text-owl-cyan hover:bg-owl-cyan/20 hover:border-owl-cyan/50 transition-all hover:shadow-[0_0_20px_rgba(0,212,255,0.2)]"
+            aria-label="Quick Install"
           >
             <Terminal className="w-4 h-4" />
             Quick Install
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </a>
           <a
-            href="https://github.com/marktantongco/owl-orca"
+            href="https://github.com/marktantongco/owl-orca-v3"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/14 text-foreground/60 hover:text-white hover:bg-white/10 transition-all"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/14 text-foreground/70 hover:text-white hover:bg-white/10 transition-all"
+            aria-label="View on GitHub"
           >
             <GithubIcon className="w-4 h-4" />
             View on GitHub
           </a>
         </div>
 
-        {/* Badges */}
         <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
-          <Badge variant="outline" className="border-owl-cyan/30 text-owl-cyan bg-owl-cyan/5 text-[11px]">
+          <Badge variant="outline" className="border-owl-cyan/40 text-owl-cyan bg-owl-cyan/10 text-xs">
             v8.0.0
           </Badge>
-          <Badge variant="outline" className="border-owl-green/30 text-owl-green bg-owl-green/5 text-[11px]">
+          <Badge variant="outline" className="border-owl-green/40 text-owl-green bg-owl-green/10 text-xs">
             MIT License
           </Badge>
-          <Badge variant="outline" className="border-owl-magenta/30 text-owl-magenta bg-owl-magenta/5 text-[11px]">
+          <Badge variant="outline" className="border-owl-magenta/40 text-owl-magenta bg-owl-magenta/10 text-xs">
             8GB RAM Optimized
           </Badge>
-          <Badge variant="outline" className="border-yellow-400/30 text-yellow-400 bg-yellow-400/5 text-[11px]">
+          <Badge variant="outline" className="border-yellow-400/40 text-yellow-400 bg-yellow-400/10 text-xs">
             Python 3.10+
           </Badge>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-40">
         <div className="w-5 h-8 rounded-full border-2 border-white/20 flex items-start justify-center p-1">
           <div className="w-1 h-2 rounded-full bg-white/40" />
@@ -458,13 +607,14 @@ function ArchitectureSection() {
       ref={ref}
       className="relative py-20 sm:py-28 px-4 scroll-mt-20"
     >
-      <div
-        className={`max-w-6xl mx-auto transition-all duration-1000 ${
-          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={visible ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-6xl mx-auto"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-owl-cyan/30 text-owl-cyan bg-owl-cyan/5 mb-4">
+          <Badge variant="outline" className="border-owl-cyan/40 text-owl-cyan bg-owl-cyan/10 mb-4">
             System Design
           </Badge>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
@@ -472,13 +622,12 @@ function ArchitectureSection() {
               Architecture
             </span>
           </h2>
-          <p className="text-foreground/70 max-w-2xl mx-auto">
+          <p className="text-foreground/80 max-w-2xl mx-auto">
             OWL-ORCA routes AI requests through a local proxy and router stack, racing multiple
             free-tier providers simultaneously. The first provider to respond wins.
           </p>
         </div>
 
-        {/* Architecture Image */}
         <div className="glass-depth p-3 sm:p-4 mb-12 overflow-hidden">
           <Image
             src="/architecture-schematic.png"
@@ -490,11 +639,9 @@ function ArchitectureSection() {
           />
         </div>
 
-        {/* Interactive Flow Diagram */}
         <div className="glass p-6 sm:p-8">
           <h3 className="text-lg font-semibold text-owl-cyan mb-6 text-center">Request Flow</h3>
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-2">
-            {/* Client */}
             <FlowNode
               icon={<Terminal className="w-5 h-5" />}
               label="Client"
@@ -502,7 +649,6 @@ function ArchitectureSection() {
               color="cyan"
             />
             <FlowArrow />
-            {/* Forward Proxy */}
             <FlowNode
               icon={<Shield className="w-5 h-5" />}
               label="Forward Proxy"
@@ -510,15 +656,14 @@ function ArchitectureSection() {
               color="magenta"
             />
             <FlowArrow />
-            {/* Orca Router */}
             <div className="glass-strong p-4 rounded-xl text-center min-w-[160px] glow-cyan">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-owl-cyan/20 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-owl-cyan/25 flex items-center justify-center drop-shadow-[0_0_8px_rgba(0,212,255,0.4)]">
                   <Zap className="w-4 h-4 text-owl-cyan" />
                 </div>
               </div>
               <p className="text-sm font-bold text-owl-cyan">Orca Router</p>
-              <p className="text-xs text-foreground/60">Port 60001</p>
+              <p className="text-xs text-foreground/70">Port 60001</p>
               <div className="mt-2 space-y-1">
                 <div className="text-xs px-2 py-0.5 rounded bg-owl-cyan/15 text-owl-cyan inline-block mr-1 drop-shadow-[0_0_4px_rgba(0,212,255,0.3)]">
                   Radix Tree
@@ -532,7 +677,6 @@ function ArchitectureSection() {
               </div>
             </div>
             <FlowArrow />
-            {/* Providers */}
             <div className="flex flex-col gap-2">
               <FlowNode
                 icon={<Zap className="w-4 h-4" />}
@@ -558,7 +702,7 @@ function ArchitectureSection() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -586,17 +730,15 @@ function FlowNode({
     <div
       className={`${small ? "p-2.5" : "p-4"} rounded-xl border text-center min-w-[120px] transition-all hover:scale-105 ${colorMap[color]}`}
     >
-      <div
-        className={`flex items-center justify-center mb-1 ${small ? "" : "mb-2"}`}
-      >
+      <div className={`flex items-center justify-center mb-1 ${small ? "" : "mb-2"}`}>
         <div
-          className={`${small ? "w-6 h-6" : "w-8 h-8"} rounded-lg bg-current/20 flex items-center justify-center [&>svg]:text-current drop-shadow-[0_0_6px_currentColor]`}
+          className={`${small ? "w-6 h-6" : "w-8 h-8"} rounded-lg bg-current/25 flex items-center justify-center [&>svg]:text-current drop-shadow-[0_0_8px_currentColor]`}
         >
           {icon}
         </div>
       </div>
       <p className={`${small ? "text-xs" : "text-sm"} font-semibold`}>{label}</p>
-      <p className="text-xs text-foreground/60">{sublabel}</p>
+      <p className="text-xs text-foreground/70">{sublabel}</p>
     </div>
   );
 }
@@ -615,10 +757,36 @@ function FlowArrow() {
 }
 
 /* ────────────────────────────────────────────
-   STREAM RACER SECTION
+   STREAM RACER SECTION (UPGRADED)
    ──────────────────────────────────────────── */
 function StreamRacerSection() {
   const { ref, visible } = useSectionReveal();
+  const [raceKey, setRaceKey] = useState(0);
+
+  const providers = useMemo(() => [
+    { name: "GitHub Copilot", color: "#00d4ff", baseLatency: 120 },
+    { name: "Antigravity", color: "#e040fb", baseLatency: 180 },
+    { name: "Kiro Gateway", color: "#10b981", baseLatency: 250 },
+  ], []);
+
+  const raceResults = useMemo(() => {
+    const seededRandom = (seed: number) => {
+      const x = Math.sin(seed * 9301 + raceKey * 49297) * 49297;
+      return x - Math.floor(x);
+    };
+    const results = providers.map((p, i) => ({
+      ...p,
+      latency: Math.round(p.baseLatency + seededRandom(i + raceKey) * 150),
+    }));
+    results.sort((a, b) => a.latency - b.latency);
+    return results;
+  }, [providers, raceKey]);
+
+  const winner = raceResults[0];
+
+  const handleReRace = useCallback(() => {
+    setRaceKey((k) => k + 1);
+  }, []);
 
   return (
     <section
@@ -626,16 +794,16 @@ function StreamRacerSection() {
       ref={ref}
       className="relative py-20 sm:py-28 px-4 overflow-hidden scroll-mt-20"
     >
-      {/* Background gradient */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,212,255,0.04)_0%,transparent_60%)] pointer-events-none" />
 
-      <div
-        className={`max-w-6xl mx-auto relative z-10 transition-all duration-1000 ${
-          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={visible ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-6xl mx-auto relative z-10"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-owl-cyan/30 text-owl-cyan bg-owl-cyan/5 mb-4">
+          <Badge variant="outline" className="border-owl-cyan/40 text-owl-cyan bg-owl-cyan/10 mb-4">
             Core Engine
           </Badge>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
@@ -643,97 +811,84 @@ function StreamRacerSection() {
               StreamRacer
             </span>
           </h2>
-          <p className="text-foreground/70 max-w-2xl mx-auto">
+          <p className="text-foreground/80 max-w-2xl mx-auto">
             Fire requests to ALL eligible providers simultaneously. The first byte wins — all other
             streams are immediately cancelled. Zero wasted latency.
           </p>
         </div>
 
-        {/* Race Visualization */}
         <div className="glass-depth p-6 sm:p-8 mb-8">
-          <div className="flex items-center gap-2 mb-6">
-            <Trophy className="w-5 h-5 text-owl-cyan" />
-            <h3 className="text-lg font-semibold text-white">Live Race Simulation</h3>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-owl-cyan" />
+              <h3 className="text-lg font-semibold text-white">Live Race Simulation</h3>
+            </div>
+            <button
+              onClick={handleReRace}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-owl-cyan/10 border border-owl-cyan/30 text-owl-cyan text-sm hover:bg-owl-cyan/20 transition-all"
+              aria-label="Re-run race simulation"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Re-Race
+            </button>
           </div>
 
-          <RaceTrack
-            name="GitHub Copilot"
-            color="#00d4ff"
-            delay={0}
-            duration={3}
-            winner
-          />
-          <RaceTrack
-            name="Antigravity"
-            color="#e040fb"
-            delay={0.3}
-            duration={3.5}
-          />
-          <RaceTrack
-            name="Kiro Gateway"
-            color="#10b981"
-            delay={0.6}
-            duration={4}
-          />
+          <div key={raceKey}>
+            {raceResults.map((provider, i) => (
+              <RaceTrack
+                key={provider.name}
+                name={provider.name}
+                color={provider.color}
+                delay={i * 0.15}
+                duration={2 + i * 0.5}
+                winner={i === 0}
+                latency={provider.latency}
+              />
+            ))}
+          </div>
 
-          {/* Winner callout */}
-          <div className="mt-6 flex items-center gap-3 p-3 rounded-lg bg-owl-cyan/5 border border-owl-cyan/20">
+          <motion.div
+            key={`winner-${raceKey}`}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mt-6 flex items-center gap-3 p-3 rounded-lg bg-owl-cyan/5 border border-owl-cyan/20"
+          >
             <Trophy className="w-5 h-5 text-owl-cyan shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-owl-cyan">Copilot wins the race!</p>
-              <p className="text-sm text-foreground/70">
-                Stream translated from OpenAI SSE → Client. Loser streams cancelled.
+              <p className="text-sm font-semibold text-owl-cyan">{winner.name} wins the race!</p>
+              <p className="text-sm text-foreground/80">
+                {winner.latency}ms first-byte — Stream translated from {winner.name === "Antigravity" ? "Anthropic" : "OpenAI"} SSE → Client. Loser streams cancelled.
               </p>
             </div>
-          </div>
+          </motion.div>
         </div>
 
-        {/* How it works steps */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            {
-              step: "1",
-              title: "Request Arrives",
-              desc: "Client sends request to Orca Router with race strategy",
-              color: "cyan" as const,
-            },
-            {
-              step: "2",
-              title: "Fire All Providers",
-              desc: "Simultaneously request from every eligible provider",
-              color: "magenta" as const,
-            },
-            {
-              step: "3",
-              title: "First Byte Wins",
-              desc: "Provider with first translated SSE chunk wins the race",
-              color: "green" as const,
-            },
-            {
-              step: "4",
-              title: "Cancel Losers",
-              desc: "Loser streams cancelled immediately to free resources",
-              color: "cyan" as const,
-            },
+            { step: "1", title: "Request Arrives", desc: "Client sends request to Orca Router with race strategy", color: "cyan" as const },
+            { step: "2", title: "Fire All Providers", desc: "Simultaneously request from every eligible provider", color: "magenta" as const },
+            { step: "3", title: "First Byte Wins", desc: "Provider with first translated SSE chunk wins the race", color: "green" as const },
+            { step: "4", title: "Cancel Losers", desc: "Loser streams cancelled immediately to free resources", color: "cyan" as const },
           ].map((item) => (
             <div key={item.step} className="glass p-4 text-center group hover:scale-[1.02] transition-transform">
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg ${
                   item.color === "cyan"
-                    ? "bg-owl-cyan/20 text-owl-cyan border border-owl-cyan/30 icon-glow-cyan"
+                    ? "bg-owl-cyan/25 text-owl-cyan border border-owl-cyan/40 icon-glow-cyan"
                     : item.color === "magenta"
-                      ? "bg-owl-magenta/20 text-owl-magenta border border-owl-magenta/30 icon-glow-magenta"
-                      : "bg-owl-green/20 text-owl-green border border-owl-green/30 icon-glow-green"
+                      ? "bg-owl-magenta/25 text-owl-magenta border border-owl-magenta/40 icon-glow-magenta"
+                      : "bg-owl-green/25 text-owl-green border border-owl-green/40 icon-glow-green"
                 }`}
               >
                 {item.step}
               </div>
               <p className="text-base font-semibold mb-1">{item.title}</p>
-              <p className="text-sm text-foreground/70">{item.desc}</p>
+              <p className="text-sm text-foreground/80">{item.desc}</p>
             </div>
           ))}
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -743,12 +898,14 @@ function RaceTrack({
   color,
   delay,
   winner = false,
+  latency,
 }: {
   name: string;
   color: string;
   delay: number;
   duration?: number;
   winner?: boolean;
+  latency?: number;
 }) {
   return (
     <div className="mb-3 last:mb-0">
@@ -759,10 +916,13 @@ function RaceTrack({
         >
           {name}
         </span>
+        {latency && (
+          <span className="text-xs text-foreground/70 font-mono">{latency}ms</span>
+        )}
         {winner && (
           <Badge
             variant="outline"
-            className="text-[11px] py-0 px-1.5"
+            className="text-xs py-0 px-1.5"
             style={{ borderColor: color, color, backgroundColor: `${color}10` }}
           >
             WINNER
@@ -770,34 +930,18 @@ function RaceTrack({
         )}
       </div>
       <div className="relative h-3 rounded-full bg-white/5 overflow-hidden">
-        {/* Track background */}
         <div
           className="absolute inset-y-0 left-0 rounded-full opacity-10"
           style={{ backgroundColor: color, width: "100%" }}
         />
-        {/* Racing stream */}
-        <div
-          className="absolute inset-y-0 left-0 rounded-full"
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 2, delay, ease: "easeOut" }}
+          className="absolute inset-y-0 left-0 right-0 rounded-full origin-left"
           style={{
             backgroundColor: color,
-            animation: winner
-              ? "race-stream-winner 3s ease-out infinite"
-              : "race-stream-2 3s ease-out infinite",
-            animationDelay: `${delay}s`,
             boxShadow: `0 0 12px ${color}`,
-            width: winner ? "30%" : "20%",
-          }}
-        />
-        {/* Pulse dot at head */}
-        <div
-          className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
-          style={{
-            backgroundColor: color,
-            boxShadow: `0 0 8px ${color}`,
-            animation: winner
-              ? "race-stream-winner 3s ease-out infinite"
-              : "race-stream-2 3s ease-out infinite",
-            animationDelay: `${delay}s`,
           }}
         />
       </div>
@@ -874,13 +1018,14 @@ function FeaturesSection() {
     <section id="features" ref={ref} className="relative py-20 sm:py-28 px-4 scroll-mt-20">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(224,64,251,0.03)_0%,transparent_50%)] pointer-events-none" />
 
-      <div
-        className={`max-w-6xl mx-auto relative z-10 transition-all duration-1000 ${
-          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={visible ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-6xl mx-auto relative z-10"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-owl-magenta/30 text-owl-magenta bg-owl-magenta/5 mb-4">
+          <Badge variant="outline" className="border-owl-magenta/40 text-owl-magenta bg-owl-magenta/10 mb-4">
             Capabilities
           </Badge>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
@@ -888,7 +1033,7 @@ function FeaturesSection() {
               Feature Set
             </span>
           </h2>
-          <p className="text-foreground/70 max-w-2xl mx-auto">
+          <p className="text-foreground/80 max-w-2xl mx-auto">
             Battle-tested through five audit passes. Every feature is production-hardened.
           </p>
         </div>
@@ -898,7 +1043,7 @@ function FeaturesSection() {
             <FeatureCard key={feature.title} feature={feature} index={i} />
           ))}
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -910,46 +1055,719 @@ function FeatureCard({
   feature: (typeof FEATURES)[number];
   index: number;
 }) {
-  const colorMap = {
+  const colorMap = useMemo(() => ({
     cyan: {
-      iconBg: "bg-owl-cyan/20",
+      iconBg: "bg-owl-cyan/25",
       iconColor: "text-owl-cyan",
       borderHover: "hover:border-owl-cyan/30",
       glowHover: "hover:shadow-[0_0_20px_rgba(0,212,255,0.1)]",
-      badge: "border-owl-cyan/30 text-owl-cyan bg-owl-cyan/8",
+      badge: "border-owl-cyan/40 text-owl-cyan bg-owl-cyan/10",
+      hoverGlow: "group-hover:drop-shadow-[0_0_8px_rgba(0,212,255,0.4)]",
     },
     green: {
-      iconBg: "bg-owl-green/20",
+      iconBg: "bg-owl-green/25",
       iconColor: "text-owl-green",
       borderHover: "hover:border-owl-green/30",
       glowHover: "hover:shadow-[0_0_20px_rgba(16,185,129,0.1)]",
-      badge: "border-owl-green/30 text-owl-green bg-owl-green/8",
+      badge: "border-owl-green/40 text-owl-green bg-owl-green/10",
+      hoverGlow: "group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]",
     },
     magenta: {
-      iconBg: "bg-owl-magenta/20",
+      iconBg: "bg-owl-magenta/25",
       iconColor: "text-owl-magenta",
       borderHover: "hover:border-owl-magenta/30",
       glowHover: "hover:shadow-[0_0_20px_rgba(224,64,251,0.1)]",
-      badge: "border-owl-magenta/30 text-owl-magenta bg-owl-magenta/8",
+      badge: "border-owl-magenta/40 text-owl-magenta bg-owl-magenta/10",
+      hoverGlow: "group-hover:drop-shadow-[0_0_8px_rgba(224,64,251,0.4)]",
     },
-  };
+  }), []);
 
   const c = colorMap[feature.color];
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.06, duration: 0.4 }}
       className={`glass-depth p-5 transition-all duration-300 group ${c.borderHover} ${c.glowHover} hover:scale-[1.02]`}
-      style={{ animationDelay: `${index * 80}ms` }}
     >
-      <div className={`w-10 h-10 rounded-xl ${c.iconBg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform group-hover:drop-shadow-[0_0_8px_rgba(0,212,255,0.4)]`}>
+      <div className={`w-10 h-10 rounded-xl ${c.iconBg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform ${c.hoverGlow}`}>
         <feature.icon className={`w-5 h-5 ${c.iconColor}`} />
       </div>
       <h3 className="text-base font-bold mb-1">{feature.title}</h3>
-      <Badge variant="outline" className={`text-[11px] py-0 px-1.5 mb-2 ${c.badge}`}>
+      <Badge variant="outline" className={`text-xs py-0 px-1.5 mb-2 ${c.badge}`}>
         {feature.subtitle}
       </Badge>
-      <p className="text-sm text-foreground/70 leading-relaxed">{feature.desc}</p>
-    </div>
+      <p className="text-sm text-foreground/80 leading-relaxed">{feature.desc}</p>
+    </motion.div>
+  );
+}
+
+/* ────────────────────────────────────────────
+   CIRCUIT BREAKER DEMO (NEW)
+   ──────────────────────────────────────────── */
+type CircuitState = "CLOSED" | "HALF-OPEN" | "OPEN";
+
+function CircuitBreakerDemo() {
+  const { ref, visible } = useSectionReveal();
+  const [state, setState] = useState<CircuitState>("CLOSED");
+  const [failureCount, setFailureCount] = useState(0);
+  const [cooldown, setCooldown] = useState(0);
+  const [probeActive, setProbeActive] = useState(false);
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const simulateFailure = useCallback(() => {
+    if (state === "CLOSED") {
+      const next = failureCount + 1;
+      setFailureCount(next);
+      if (next >= 5) {
+        setState("OPEN");
+        setCooldown(60);
+      }
+    } else if (state === "HALF-OPEN") {
+      setState("OPEN");
+      setFailureCount(5);
+      setCooldown(60);
+    }
+  }, [state, failureCount]);
+
+  const simulateSuccess = useCallback(() => {
+    if (state === "HALF-OPEN") {
+      setState("CLOSED");
+      setFailureCount(0);
+      setProbeActive(false);
+    }
+  }, [state]);
+
+  useEffect(() => {
+    if (state === "OPEN" && cooldown > 0) {
+      cooldownRef.current = setInterval(() => {
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            setState("HALF-OPEN");
+            setProbeActive(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => {
+        if (cooldownRef.current) clearInterval(cooldownRef.current);
+      };
+    }
+  }, [state, cooldown]);
+
+  const resetCircuit = useCallback(() => {
+    setState("CLOSED");
+    setFailureCount(0);
+    setCooldown(0);
+    setProbeActive(false);
+    if (cooldownRef.current) clearInterval(cooldownRef.current);
+  }, []);
+
+  const stateColors: Record<CircuitState, string> = {
+    CLOSED: "border-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.2)]",
+    "HALF-OPEN": "border-amber-500/50 shadow-[0_0_12px_rgba(245,158,11,0.2)]",
+    OPEN: "border-red-500/50 shadow-[0_0_12px_rgba(239,68,68,0.2)]",
+  };
+
+  const stateTextColors: Record<CircuitState, string> = {
+    CLOSED: "text-emerald-400",
+    "HALF-OPEN": "text-amber-400",
+    OPEN: "text-red-400",
+  };
+
+  const stateBgColors: Record<CircuitState, string> = {
+    CLOSED: "bg-emerald-500/10",
+    "HALF-OPEN": "bg-amber-500/10",
+    OPEN: "bg-red-500/10",
+  };
+
+  return (
+    <section id="circuit-breaker" ref={ref} className="relative py-20 sm:py-28 px-4 scroll-mt-20">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_40%,rgba(224,64,251,0.04)_0%,transparent_60%)] pointer-events-none" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={visible ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-6xl mx-auto relative z-10"
+      >
+        <div className="text-center mb-12">
+          <Badge variant="outline" className="border-owl-magenta/40 text-owl-magenta bg-owl-magenta/10 mb-4">
+            Interactive Demo
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-owl-magenta to-owl-amber bg-clip-text text-transparent">
+              Circuit Breaker
+            </span>
+          </h2>
+          <p className="text-foreground/80 max-w-2xl mx-auto">
+            Watch how circuit breakers protect your system. 5 consecutive failures trigger the OPEN state,
+            a 60-second cooldown leads to HALF-OPEN, and a successful probe restores the CLOSED state.
+          </p>
+        </div>
+
+        <div className="glass-depth p-6 sm:p-8">
+          {/* State Machine Diagram */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-8">
+            {(["CLOSED", "HALF-OPEN", "OPEN"] as CircuitState[]).map((s, i) => (
+              <div key={s} className="flex items-center gap-3 sm:gap-4">
+                <motion.div
+                  animate={{
+                    scale: state === s ? 1.05 : 0.95,
+                    opacity: state === s ? 1 : 0.5,
+                  }}
+                  transition={{ duration: 0.4 }}
+                  className={`px-5 py-3 rounded-xl border-2 transition-all ${stateColors[s]} ${
+                    state === s ? stateBgColors[s] : "bg-white/[0.03]"
+                  }`}
+                >
+                  <p className={`text-sm font-bold ${stateTextColors[s]} ${state === s ? "vivid-text" : ""}`}>
+                    {s}
+                  </p>
+                  <p className="text-xs text-foreground/70 mt-0.5">
+                    {s === "CLOSED" ? "All clear" : s === "OPEN" ? "Blocked" : "Probing"}
+                  </p>
+                </motion.div>
+                {i < 2 && (
+                  <div className="hidden sm:flex flex-col items-center gap-0.5 text-foreground/50">
+                    <ArrowRight className="w-4 h-4" />
+                    <span className="text-[10px]">
+                      {i === 0 ? "5 failures" : "cooldown"}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* State info panel */}
+          <motion.div
+            key={state}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className={`p-4 rounded-xl border-2 mb-6 ${stateColors[state]} ${stateBgColors[state]}`}
+          >
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <p className={`text-lg font-bold ${stateTextColors[state]}`}>
+                  {state === "CLOSED" && "✓ Circuit CLOSED — Requests flowing normally"}
+                  {state === "OPEN" && "✗ Circuit OPEN — All requests blocked"}
+                  {state === "HALF-OPEN" && "⚡ Circuit HALF-OPEN — Sending probe request"}
+                </p>
+                <p className="text-sm text-foreground/80 mt-1">
+                  {state === "CLOSED" && `Failure count: ${failureCount}/5 before circuit opens`}
+                  {state === "OPEN" && `Cooldown: ${cooldown}s remaining before probe attempt`}
+                  {state === "HALF-OPEN" && "A single probe request will determine if the circuit can close"}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-xs text-foreground/70">Failures</p>
+                  <p className="text-lg font-bold text-foreground/80">{failureCount}/5</p>
+                </div>
+                {cooldown > 0 && (
+                  <div className="text-right">
+                    <p className="text-xs text-foreground/70">Cooldown</p>
+                    <p className="text-lg font-bold text-amber-400">{cooldown}s</p>
+                  </div>
+                )}
+                {probeActive && (
+                  <div className="text-right">
+                    <p className="text-xs text-foreground/70">Probe</p>
+                    <p className="text-lg font-bold text-amber-400">Active</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Controls */}
+          <div className="flex flex-wrap items-center gap-3 justify-center">
+            <button
+              onClick={simulateFailure}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 transition-all"
+              aria-label="Simulate a failure"
+            >
+              <AlertTriangle className="w-4 h-4" />
+              Simulate Failure
+            </button>
+            {state === "HALF-OPEN" && (
+              <button
+                onClick={simulateSuccess}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 transition-all"
+                aria-label="Simulate successful probe"
+              >
+                <Check className="w-4 h-4" />
+                Probe Success
+              </button>
+            )}
+            <button
+              onClick={resetCircuit}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-foreground/70 hover:bg-white/10 transition-all"
+              aria-label="Reset circuit breaker"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Reset
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────
+   PROTOCOL TRANSLATION DEMO (NEW)
+   ──────────────────────────────────────────── */
+function ProtocolTranslationDemo() {
+  const { ref, visible } = useSectionReveal();
+  const [activeLine, setActiveLine] = useState(0);
+
+  const anthropicEvents = useMemo(() => [
+    { type: "event", data: "message_start", detail: '{"type":"message_start","message":{"role":"assistant"}}' },
+    { type: "event", data: "content_block_start", detail: '{"type":"content_block_start","index":0}' },
+    { type: "event", data: "content_block_delta", detail: '{"type":"content_block_delta","delta":{"type":"text_delta","text":"Hello"}}' },
+    { type: "event", data: "content_block_delta", detail: '{"type":"content_block_delta","delta":{"type":"text_delta","text":" world"}}' },
+    { type: "event", data: "content_block_delta", detail: '{"type":"content_block_delta","delta":{"type":"thinking_delta","thinking":"..."}}' },
+    { type: "event", data: "content_block_stop", detail: '{"type":"content_block_stop","index":0}' },
+    { type: "event", data: "message_delta", detail: '{"type":"message_delta","delta":{"stop_reason":"end_turn"}}' },
+    { type: "event", data: "message_stop", detail: '{"type":"message_stop"}' },
+  ], []);
+
+  const openaiEvents = useMemo(() => [
+    { type: "chunk", data: "role chunk", detail: '{"role":"assistant","content":null}' },
+    { type: "chunk", data: "content start", detail: '{"choices":[{"delta":{"role":"assistant"}}]}' },
+    { type: "chunk", data: "content delta", detail: '{"choices":[{"delta":{"content":"Hello"}}]}' },
+    { type: "chunk", data: "content delta", detail: '{"choices":[{"delta":{"content":" world"}}]}' },
+    { type: "chunk", data: "thinking delta", detail: '{"choices":[{"delta":{"reasoning_content":"..."}}]}' },
+    { type: "chunk", data: "content end", detail: '{"choices":[{"delta":{}}]}' },
+    { type: "chunk", data: "stop chunk", detail: '{"choices":[{"delta":{},"finish_reason":"stop"}]}' },
+    { type: "chunk", data: "done", detail: '[DONE]' },
+  ], []);
+
+  const mappings = useMemo(() => [
+    { from: "message_start", to: "role chunk", arrow: "→" },
+    { from: "content_block_start", to: "content start", arrow: "→" },
+    { from: "content_block_delta", to: "content delta", arrow: "→" },
+    { from: "content_block_delta (thinking)", to: "thinking delta (reasoning_content)", arrow: "→" },
+    { from: "content_block_stop", to: "content end", arrow: "→" },
+    { from: "message_delta", to: "stop chunk", arrow: "→" },
+    { from: "message_stop", to: "done", arrow: "→" },
+  ], []);
+
+  useEffect(() => {
+    if (!visible) return;
+    const interval = setInterval(() => {
+      setActiveLine((prev) => (prev + 1) % anthropicEvents.length);
+    }, 1200);
+    return () => clearInterval(interval);
+  }, [visible, anthropicEvents.length]);
+
+  return (
+    <section id="protocol" ref={ref} className="relative py-20 sm:py-28 px-4 scroll-mt-20">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_40%_60%,rgba(16,185,129,0.04)_0%,transparent_60%)] pointer-events-none" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={visible ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-6xl mx-auto relative z-10"
+      >
+        <div className="text-center mb-12">
+          <Badge variant="outline" className="border-owl-green/40 text-owl-green bg-owl-green/10 mb-4">
+            Live Visualization
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-owl-green to-owl-cyan bg-clip-text text-transparent">
+              Protocol Translation
+            </span>
+          </h2>
+          <p className="text-foreground/80 max-w-2xl mx-auto">
+            Real-time SSE translation from Anthropic format to OpenAI format. Every chunk is translated on-the-fly with zero buffering.
+          </p>
+        </div>
+
+        {/* Side-by-side panels */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+          {/* Anthropic Input */}
+          <div className="glass-depth p-4 sm:p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-3 h-3 rounded-full bg-owl-green animate-pulse" />
+              <h3 className="text-sm font-bold text-owl-green">Anthropic SSE Input</h3>
+            </div>
+            <div className="bg-black/30 rounded-lg p-3 font-mono text-xs sm:text-sm space-y-1.5 max-h-80 overflow-y-auto custom-scrollbar">
+              {anthropicEvents.map((event, i) => (
+                <motion.div
+                  key={i}
+                  animate={{
+                    opacity: i <= activeLine ? 1 : 0.3,
+                    x: i === activeLine ? 4 : 0,
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className={`flex gap-2 ${i === activeLine ? "text-owl-green vivid-text" : "text-foreground/70"}`}
+                >
+                  <span className="text-owl-green/60 shrink-0">event:</span>
+                  <span className="text-owl-green">{event.data}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* OpenAI Output */}
+          <div className="glass-depth p-4 sm:p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-3 h-3 rounded-full bg-owl-cyan animate-pulse" />
+              <h3 className="text-sm font-bold text-owl-cyan">OpenAI SSE Output</h3>
+            </div>
+            <div className="bg-black/30 rounded-lg p-3 font-mono text-xs sm:text-sm space-y-1.5 max-h-80 overflow-y-auto custom-scrollbar">
+              {openaiEvents.map((event, i) => (
+                <motion.div
+                  key={i}
+                  animate={{
+                    opacity: i <= activeLine ? 1 : 0.3,
+                    x: i === activeLine ? 4 : 0,
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className={`flex gap-2 ${i === activeLine ? "text-owl-cyan vivid-text" : "text-foreground/70"}`}
+                >
+                  <span className="text-owl-cyan/60 shrink-0">data:</span>
+                  <span className="text-owl-cyan">{event.data}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Mapping table */}
+        <div className="glass-depth p-4 sm:p-5">
+          <h3 className="text-sm font-bold text-foreground/80 mb-4">Event Mapping</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            {mappings.map((m) => (
+              <div key={m.from} className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.03]">
+                <span className="text-xs font-mono text-owl-green">{m.from}</span>
+                <ArrowRight className="w-3 h-3 text-foreground/50 shrink-0" />
+                <span className="text-xs font-mono text-owl-cyan">{m.to}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────
+   PROXY ECOSYSTEM SECTION (NEW)
+   ──────────────────────────────────────────── */
+function ProxyEcosystemSection() {
+  const { ref, visible } = useSectionReveal();
+
+  const crossFieldInsights = useMemo(() => [
+    {
+      icon: "🧠",
+      field: "Psychology",
+      title: "Emotional Regulation",
+      desc: "Circuit breakers mirror human resilience patterns — just as we need cool-down periods after emotional overwhelm, systems need recovery windows before retrying failed operations.",
+      color: "magenta" as const,
+    },
+    {
+      icon: "📊",
+      field: "Economics",
+      title: "Competitive Bidding",
+      desc: "Stream racing is market competition — multiple providers competing for your request, like a reverse auction where the fastest response wins the contract.",
+      color: "cyan" as const,
+    },
+    {
+      icon: "🧬",
+      field: "Biology",
+      title: "Autopoiesis",
+      desc: "Self-maintaining systems that regenerate themselves. Like cellular repair, OWL-ORCA auto-heals failed circuits and maintains homeostasis through probe-based recovery.",
+      color: "green" as const,
+    },
+    {
+      icon: "📜",
+      field: "History",
+      title: "Industrial Revolution",
+      desc: "Single-provider (monopoly) → multi-provider (competition) → racing (parallelism). The same pattern that transformed manufacturing now transforms AI access.",
+      color: "amber" as const,
+    },
+  ], []);
+
+  const comparisonCards = useMemo(() => [
+    {
+      name: "Simple Proxy (nginx)",
+      limitations: [
+        "No stream racing — routes to one backend only",
+        "No protocol translation — what goes in comes out",
+        "No circuit breakers — failures cascade to client",
+      ],
+      owlSolutions: [
+        "Race multiple providers simultaneously",
+        "Real-time Anthropic ↔ OpenAI translation",
+        "Automatic fault detection with probe recovery",
+      ],
+    },
+    {
+      name: "API Gateway (Kong)",
+      limitations: [
+        "No free-tier provider aggregation",
+        "No stream racing — sequential only",
+        "Requires paid plugins for AI features",
+      ],
+      owlSolutions: [
+        "Aggregates free-tier providers out of the box",
+        "Built-in stream racing engine",
+        "All AI features included, zero cost",
+      ],
+    },
+    {
+      name: "Load Balancer (HAProxy)",
+      limitations: [
+        "No protocol translation capability",
+        "No circuit breakers with probe logic",
+        "Round-robin only, no first-byte-wins",
+      ],
+      owlSolutions: [
+        "Full SSE format translation layer",
+        "Half-open circuit breaker with probes",
+        "First-byte-wins racing strategy",
+      ],
+    },
+    {
+      name: "Commercial Gateway (OpenRouter)",
+      limitations: [
+        "Costs money per API call",
+        "No self-hosting option",
+        "Vendor lock-in to their infrastructure",
+      ],
+      owlSolutions: [
+        "100% free using free-tier providers",
+        "Self-hosted on your own machine",
+        "Open source, no vendor lock-in",
+      ],
+    },
+  ], []);
+
+  return (
+    <section id="ecosystem" ref={ref} className="relative py-20 sm:py-28 px-4 scroll-mt-20">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_30%,rgba(0,212,255,0.03)_0%,transparent_60%)] pointer-events-none" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={visible ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-6xl mx-auto relative z-10"
+      >
+        <div className="text-center mb-12">
+          <Badge variant="outline" className="border-owl-cyan/40 text-owl-cyan bg-owl-cyan/10 mb-4">
+            Cross-Domain Insights
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-owl-cyan via-owl-green to-owl-amber bg-clip-text text-transparent">
+              Proxy Ecosystem
+            </span>
+          </h2>
+          <p className="text-foreground/80 max-w-2xl mx-auto">
+            OWL-ORCA in context — how proxy architecture connects to psychology, economics, biology, and history. Plus a competitive analysis.
+          </p>
+        </div>
+
+        {/* Cross-field insights */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+          {crossFieldInsights.map((insight) => (
+            <motion.div
+              key={insight.field}
+              whileHover={{ scale: 1.02 }}
+              className={`glass-depth p-5 transition-all ${
+                insight.color === "cyan"
+                  ? "hover:border-owl-cyan/30 hover:shadow-[0_0_20px_rgba(0,212,255,0.1)]"
+                  : insight.color === "green"
+                    ? "hover:border-owl-green/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.1)]"
+                    : insight.color === "magenta"
+                      ? "hover:border-owl-magenta/30 hover:shadow-[0_0_20px_rgba(224,64,251,0.1)]"
+                      : "hover:border-owl-amber/30 hover:shadow-[0_0_20px_rgba(245,158,11,0.1)]"
+              }`}
+            >
+              <div className="text-2xl mb-3">{insight.icon}</div>
+              <Badge
+                variant="outline"
+                className={`text-xs mb-2 ${
+                  insight.color === "cyan"
+                    ? "border-owl-cyan/40 text-owl-cyan bg-owl-cyan/10"
+                    : insight.color === "green"
+                      ? "border-owl-green/40 text-owl-green bg-owl-green/10"
+                      : insight.color === "magenta"
+                        ? "border-owl-magenta/40 text-owl-magenta bg-owl-magenta/10"
+                        : "border-owl-amber/40 text-owl-amber bg-owl-amber/10"
+                }`}
+              >
+                {insight.field}
+              </Badge>
+              <h3 className="text-base font-bold mb-2">{insight.title}</h3>
+              <p className="text-sm text-foreground/80 leading-relaxed">{insight.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Comparison cards */}
+        <h3 className="text-xl font-bold text-center mb-6 text-foreground/80">How OWL-ORCA Compares</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {comparisonCards.map((card) => (
+            <div key={card.name} className="proxy-card p-5">
+              <h4 className="text-base font-bold text-foreground/80 mb-3">{card.name}</h4>
+              <div className="space-y-2 mb-4">
+                {card.limitations.map((lim) => (
+                  <div key={lim} className="flex items-start gap-2">
+                    <X className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-300/80">{lim}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-white/10 pt-3 space-y-2">
+                {card.owlSolutions.map((sol) => (
+                  <div key={sol} className="flex items-start gap-2">
+                    <Check className="w-4 h-4 text-owl-cyan shrink-0 mt-0.5" />
+                    <p className="text-sm text-owl-cyan/90">{sol}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────
+   MEMORY BUDGET SECTION (NEW)
+   ──────────────────────────────────────────── */
+function MemoryBudgetSection() {
+  const { ref, visible } = useSectionReveal();
+
+  const segments = useMemo(() => [
+    { name: "Orca Router", idle: 128, max: 384, color: "#00d4ff", colorClass: "bg-owl-cyan" },
+    { name: "Forward Proxy", idle: 48, max: 128, color: "#e040fb", colorClass: "bg-owl-magenta" },
+    { name: "Kiro Gateway", idle: 96, max: 256, color: "#10b981", colorClass: "bg-owl-green" },
+  ], []);
+
+  const totalMax = segments.reduce((sum, s) => sum + s.max, 0);
+  const totalIdle = segments.reduce((sum, s) => sum + s.idle, 0);
+  const totalRam = 8192;
+  const available = totalRam - totalMax;
+
+  return (
+    <section id="memory" ref={ref} className="relative py-20 sm:py-28 px-4 scroll-mt-20">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(245,158,11,0.03)_0%,transparent_60%)] pointer-events-none" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={visible ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-6xl mx-auto relative z-10"
+      >
+        <div className="text-center mb-12">
+          <Badge variant="outline" className="border-owl-amber/40 text-owl-amber bg-owl-amber/10 mb-4">
+            Resource Planning
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-owl-amber to-owl-cyan bg-clip-text text-transparent">
+              Memory Budget
+            </span>
+          </h2>
+          <p className="text-foreground/80 max-w-2xl mx-auto">
+            Optimized for 8GB systems. The entire OWL-ORCA stack uses less than 10% of available RAM at peak, leaving plenty of headroom.
+          </p>
+        </div>
+
+        <div className="glass-depth p-6 sm:p-8">
+          {/* Stacked bar chart */}
+          <div className="mb-8">
+            <h3 className="text-sm font-bold text-foreground/80 mb-4">Memory Allocation (MB)</h3>
+            <div className="relative h-12 rounded-xl bg-white/5 overflow-hidden flex">
+              {segments.map((seg) => (
+                <motion.div
+                  key={seg.name}
+                  initial={{ width: 0 }}
+                  animate={visible ? { width: `${(seg.max / totalRam) * 100}%` } : { width: 0 }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className="h-full flex items-center justify-center relative"
+                  style={{ backgroundColor: seg.color + "40" }}
+                >
+                  <span className="text-xs font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                    {seg.max}MB
+                  </span>
+                </motion.div>
+              ))}
+              {/* Available space */}
+              <div className="h-full flex-1 flex items-center justify-center bg-white/[0.02]">
+                <span className="text-xs text-foreground/50">{available}MB free</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Detailed breakdown */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            {segments.map((seg) => (
+              <div key={seg.name} className="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: seg.color }} />
+                  <h4 className="text-sm font-bold text-foreground/80">{seg.name}</h4>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-foreground/70">Idle</span>
+                    <span className="font-mono text-foreground/80">{seg.idle}MB</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={visible ? { width: `${(seg.idle / seg.max) * 100}%` } : { width: 0 }}
+                      transition={{ duration: 0.8, delay: 0.3 }}
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: seg.color + "60" }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-foreground/70">Max</span>
+                    <span className="font-mono text-foreground/80">{seg.max}MB</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={visible ? { width: "100%" } : { width: 0 }}
+                      transition={{ duration: 1, delay: 0.5 }}
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: seg.color }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Summary */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-owl-cyan/5 border border-owl-cyan/20">
+            <div className="flex items-center gap-3">
+              <Cpu className="w-5 h-5 text-owl-cyan" />
+              <div>
+                <p className="text-sm font-bold text-owl-cyan">Total: {totalMax}MB peak / {totalIdle}MB idle</p>
+                <p className="text-sm text-foreground/80">
+                  {(totalMax / totalRam * 100).toFixed(1)}% of 8GB — {(available / 1024).toFixed(1)}GB available for OS
+                </p>
+              </div>
+            </div>
+            <Badge variant="outline" className="border-owl-green/40 text-owl-green bg-owl-green/10">
+              8GB Optimized
+            </Badge>
+          </div>
+        </div>
+      </motion.div>
+    </section>
   );
 }
 
@@ -976,13 +1794,14 @@ function TimelineSection() {
 
   return (
     <section id="timeline" ref={ref} className="relative py-20 sm:py-28 px-4 scroll-mt-20">
-      <div
-        className={`max-w-6xl mx-auto transition-all duration-1000 ${
-          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={visible ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-6xl mx-auto"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-owl-green/30 text-owl-green bg-owl-green/5 mb-4">
+          <Badge variant="outline" className="border-owl-green/40 text-owl-green bg-owl-green/10 mb-4">
             Evolution
           </Badge>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
@@ -990,12 +1809,11 @@ function TimelineSection() {
               Version Timeline
             </span>
           </h2>
-          <p className="text-foreground/70 max-w-2xl mx-auto">
+          <p className="text-foreground/80 max-w-2xl mx-auto">
             From base infrastructure to five-pass audit final. Every version battle-tested.
           </p>
         </div>
 
-        {/* Version Timeline Image */}
         <div className="glass-depth p-3 sm:p-4 mb-8 overflow-hidden">
           <Image
             src="/version-timeline.png"
@@ -1006,7 +1824,6 @@ function TimelineSection() {
           />
         </div>
 
-        {/* Horizontal Scrollable Timeline */}
         <div
           ref={scrollRef}
           className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar snap-x snap-mandatory"
@@ -1015,18 +1832,15 @@ function TimelineSection() {
             const colorStyles = {
               cyan: {
                 dot: "bg-owl-cyan shadow-[0_0_8px_rgba(0,212,255,0.5)]",
-                line: "bg-gradient-to-r from-owl-cyan/50 to-transparent",
-                badge: "border-owl-cyan/30 text-owl-cyan",
+                badge: "border-owl-cyan/40 text-owl-cyan",
               },
               green: {
                 dot: "bg-owl-green shadow-[0_0_8px_rgba(16,185,129,0.5)]",
-                line: "bg-gradient-to-r from-owl-green/50 to-transparent",
-                badge: "border-owl-green/30 text-owl-green",
+                badge: "border-owl-green/40 text-owl-green",
               },
               magenta: {
                 dot: "bg-owl-magenta shadow-[0_0_8px_rgba(224,64,251,0.5)]",
-                line: "bg-gradient-to-r from-owl-magenta/50 to-transparent",
-                badge: "border-owl-magenta/30 text-owl-magenta",
+                badge: "border-owl-magenta/40 text-owl-magenta",
               },
             };
             const s = colorStyles[v.color];
@@ -1038,21 +1852,21 @@ function TimelineSection() {
               >
                 <div className="flex items-center gap-2 mb-2">
                   <div className={`w-3 h-3 rounded-full ${s.dot}`} />
-                  <Badge variant="outline" className={`text-[11px] py-0 ${s.badge}`}>
+                  <Badge variant="outline" className={`text-xs py-0 ${s.badge}`}>
                     v{v.version}
                   </Badge>
                 </div>
                 <p className="text-base font-bold mb-1">{v.codename}</p>
-                <p className="text-[11px] text-foreground/60 mb-2 flex items-center gap-1">
+                <p className="text-xs text-foreground/70 mb-2 flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   {v.date}
                 </p>
-                <p className="text-sm text-foreground/60 leading-relaxed">{v.key}</p>
+                <p className="text-sm text-foreground/70 leading-relaxed">{v.key}</p>
               </div>
             );
           })}
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -1065,26 +1879,27 @@ function QuickInstallSection() {
   const [copied, setCopied] = useState(false);
 
   const installCmd =
-    'curl -fsSL https://raw.githubusercontent.com/marktantongco/owl-orca/main/install.sh | bash';
+    'curl -fsSL https://raw.githubusercontent.com/marktantongco/owl-orca-v3/main/install.sh | bash';
 
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(installCmd).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
-  }, []);
+  }, [installCmd]);
 
   return (
     <section id="install" ref={ref} className="relative py-20 sm:py-28 px-4 scroll-mt-20">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(16,185,129,0.04)_0%,transparent_60%)] pointer-events-none" />
 
-      <div
-        className={`max-w-4xl mx-auto relative z-10 transition-all duration-1000 ${
-          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={visible ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-4xl mx-auto relative z-10"
       >
         <div className="text-center mb-8">
-          <Badge variant="outline" className="border-owl-green/30 text-owl-green bg-owl-green/5 mb-4">
+          <Badge variant="outline" className="border-owl-green/40 text-owl-green bg-owl-green/10 mb-4">
             Get Started
           </Badge>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
@@ -1092,21 +1907,19 @@ function QuickInstallSection() {
               Quick Install
             </span>
           </h2>
-          <p className="text-foreground/70">
+          <p className="text-foreground/80">
             One line. That&apos;s all it takes.
           </p>
         </div>
 
-        {/* Code block */}
         <div className="glass-depth p-1">
           <div className="bg-black/40 rounded-xl overflow-hidden">
-            {/* Terminal header */}
             <div className="flex items-center justify-between px-4 py-2 border-b border-white/5">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-red-500/60" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
                 <div className="w-3 h-3 rounded-full bg-green-500/60" />
-                <span className="text-xs text-muted-foreground ml-2 font-mono">bash</span>
+                <span className="text-xs text-foreground/70 ml-2 font-mono">bash</span>
               </div>
               <button
                 onClick={handleCopy}
@@ -1120,20 +1933,19 @@ function QuickInstallSection() {
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3.5 h-3.5 text-muted-foreground" />
-                    <span className="text-muted-foreground">Copy</span>
+                    <Copy className="w-3.5 h-3.5 text-foreground/70" />
+                    <span className="text-foreground/70">Copy</span>
                   </>
                 )}
               </button>
             </div>
-            {/* Code */}
             <div className="p-4 sm:p-6 overflow-x-auto">
               <code className="text-sm sm:text-base font-mono text-owl-green leading-relaxed">
-                <span className="text-muted-foreground">$</span>{" "}
+                <span className="text-foreground/70">$</span>{" "}
                 <span className="text-owl-cyan">curl</span>{" "}
                 <span className="text-owl-magenta">-fsSL</span>{" "}
                 <span className="text-yellow-400">
-                  https://raw.githubusercontent.com/marktantongco/owl-orca/main/install.sh
+                  https://raw.githubusercontent.com/marktantongco/owl-orca-v3/main/install.sh
                 </span>{" "}
                 <span className="text-owl-magenta">|</span>{" "}
                 <span className="text-owl-cyan">bash</span>
@@ -1142,7 +1954,6 @@ function QuickInstallSection() {
           </div>
         </div>
 
-        {/* Alternative install options */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
           {[
             { flag: "--skip-proxy", desc: "Skip forward proxy" },
@@ -1151,14 +1962,13 @@ function QuickInstallSection() {
           ].map((opt) => (
             <div key={opt.flag} className="glass p-3 text-center">
               <code className="text-sm font-mono text-owl-cyan">{opt.flag}</code>
-              <p className="text-xs text-foreground/60 mt-1">{opt.desc}</p>
+              <p className="text-xs text-foreground/70 mt-1">{opt.desc}</p>
             </div>
           ))}
         </div>
 
-        {/* More options */}
         <div className="glass-subtle p-4 mt-6 rounded-xl">
-          <p className="text-xs text-foreground/60 mb-2 font-semibold">More install options:</p>
+          <p className="text-xs text-foreground/70 mb-2 font-semibold">More install options:</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
               { flag: "--upgrade", desc: "Upgrade existing" },
@@ -1168,12 +1978,12 @@ function QuickInstallSection() {
             ].map((opt) => (
               <div key={opt.flag} className="flex flex-col gap-0.5">
                 <code className="text-xs font-mono text-owl-green">{opt.flag}</code>
-                <span className="text-xs text-foreground/60">{opt.desc}</span>
+                <span className="text-xs text-foreground/70">{opt.desc}</span>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -1184,7 +1994,7 @@ function QuickInstallSection() {
 function FeatureMatrixSection() {
   const { ref, visible } = useSectionReveal();
 
-  const providerData = [
+  const providerData = useMemo(() => [
     {
       provider: "GitHub Copilot (Free)",
       format: "OpenAI",
@@ -1221,24 +2031,25 @@ function FeatureMatrixSection() {
       canary: "Fallback",
       fallback: "Last resort",
     },
-  ];
+  ], []);
 
-  const strategyData = [
+  const strategyData = useMemo(() => [
     { strategy: "race", desc: "Fire ALL providers, first byte wins", use: "Chat completions", latency: "Lowest", cost: "Higher" },
     { strategy: "single", desc: "Route to first available", use: "Model listing", latency: "Normal", cost: "Normal" },
     { strategy: "canary", desc: "Weighted random (A/B testing)", use: "Gradual rollout", latency: "Normal", cost: "Normal" },
     { strategy: "fallback", desc: "Try in order, fall back on circuit-open", use: "Critical paths", latency: "Variable", cost: "Normal" },
-  ];
+  ], []);
 
   return (
     <section id="matrix" ref={ref} className="relative py-20 sm:py-28 px-4 scroll-mt-20">
-      <div
-        className={`max-w-6xl mx-auto transition-all duration-1000 ${
-          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={visible ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-6xl mx-auto"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-owl-cyan/30 text-owl-cyan bg-owl-cyan/5 mb-4">
+          <Badge variant="outline" className="border-owl-cyan/40 text-owl-cyan bg-owl-cyan/10 mb-4">
             Comparison
           </Badge>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
@@ -1248,12 +2059,11 @@ function FeatureMatrixSection() {
           </h2>
         </div>
 
-        {/* Provider comparison */}
         <div className="glass-depth p-1 mb-8 overflow-x-auto">
           <table className="w-full min-w-[700px]">
             <thead>
               <tr className="border-b border-white/5">
-                <th className="text-left text-xs font-bold text-foreground/90 p-3">Feature</th>
+                <th className="text-left text-sm font-bold text-foreground/90 p-3">Feature</th>
                 {providerData.map((p) => (
                   <th key={p.provider} className="text-left text-sm font-bold text-owl-cyan p-3">
                     {p.provider}
@@ -1277,9 +2087,9 @@ function FeatureMatrixSection() {
                   key={row.key}
                   className={`border-b border-white/3 ${i % 2 === 0 ? "bg-white/[0.02]" : ""}`}
                 >
-                  <td className="text-xs font-semibold text-foreground/80 p-3">{row.label}</td>
+                  <td className="text-sm font-semibold text-foreground/80 p-3">{row.label}</td>
                   {providerData.map((p) => (
-                    <td key={`${p.provider}-${row.key}`} className="text-xs text-foreground/80 p-3">
+                    <td key={`${p.provider}-${row.key}`} className="text-sm text-foreground/80 p-3">
                       {p[row.key]}
                     </td>
                   ))}
@@ -1289,16 +2099,15 @@ function FeatureMatrixSection() {
           </table>
         </div>
 
-        {/* Routing strategy comparison */}
         <div className="glass-depth p-1 overflow-x-auto">
           <table className="w-full min-w-[600px]">
             <thead>
               <tr className="border-b border-white/5">
-                <th className="text-left text-xs font-bold text-foreground/90 p-3">Strategy</th>
-                <th className="text-left text-xs font-bold text-foreground/90 p-3">Description</th>
-                <th className="text-left text-xs font-bold text-foreground/90 p-3">Use Case</th>
-                <th className="text-left text-xs font-bold text-foreground/90 p-3">Latency</th>
-                <th className="text-left text-xs font-bold text-foreground/90 p-3">Cost</th>
+                <th className="text-left text-sm font-bold text-foreground/90 p-3">Strategy</th>
+                <th className="text-left text-sm font-bold text-foreground/90 p-3">Description</th>
+                <th className="text-left text-sm font-bold text-foreground/90 p-3">Use Case</th>
+                <th className="text-left text-sm font-bold text-foreground/90 p-3">Latency</th>
+                <th className="text-left text-sm font-bold text-foreground/90 p-3">Cost</th>
               </tr>
             </thead>
             <tbody>
@@ -1307,27 +2116,27 @@ function FeatureMatrixSection() {
                   key={s.strategy}
                   className={`border-b border-white/3 ${i % 2 === 0 ? "bg-white/[0.02]" : ""}`}
                 >
-                  <td className="text-xs font-mono font-bold text-owl-green p-3">{s.strategy}</td>
-                  <td className="text-xs text-foreground/80 p-3">{s.desc}</td>
-                  <td className="text-xs text-foreground/80 p-3">{s.use}</td>
-                  <td className="text-xs text-foreground/80 p-3">
+                  <td className="text-sm font-mono font-bold text-owl-green p-3">{s.strategy}</td>
+                  <td className="text-sm text-foreground/80 p-3">{s.desc}</td>
+                  <td className="text-sm text-foreground/80 p-3">{s.use}</td>
+                  <td className="text-sm text-foreground/80 p-3">
                     <span
                       className={
                         s.latency === "Lowest"
                           ? "text-owl-cyan font-semibold"
-                          : "text-foreground/60"
+                          : "text-foreground/70"
                       }
                     >
                       {s.latency}
                     </span>
                   </td>
-                  <td className="text-xs text-foreground/60 p-3">{s.cost}</td>
+                  <td className="text-sm text-foreground/70 p-3">{s.cost}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -1338,7 +2147,7 @@ function FeatureMatrixSection() {
 function KnownIssuesSection() {
   const { ref, visible } = useSectionReveal();
 
-  const fixedBugs = [
+  const fixedBugs = useMemo(() => [
     { id: "B1", desc: "SSE extended thinking blocks silently dropped", fix: "Map thinking_delta → reasoning_content", ver: "v7.3" },
     { id: "B2", desc: "Uninstall opencode.jsonc cleanup used naive regex", fix: "State-machine JSONC parser", ver: "v7.3" },
     { id: "B3", desc: "glibc/musl detection logic inverted", fix: "Check ldd output for musl string", ver: "v7.3" },
@@ -1348,24 +2157,25 @@ function KnownIssuesSection() {
     { id: "N2", desc: "Forward proxy hardcodes ~/.owl-agent", fix: "Use OWL_INSTALL_DIR env var", ver: "v8.0" },
     { id: "N8", desc: "SIGHUP file I/O blocks event loop", fix: "Thread executor for I/O", ver: "v8.0" },
     { id: "N9", desc: "All-streams-fail raises non-standard exception", fix: "OpenAI-compliant error chunk", ver: "v8.0" },
-  ];
+  ], []);
 
-  const pendingIssues = [
+  const pendingIssues = useMemo(() => [
     { desc: "Antigravity OAuth PKCE requires manual code paste", status: "By design", workaround: "Use --api-key flag" },
     { desc: "Copilot device flow tokens expire after 24h", status: "Pending", workaround: "Re-run owl-token auth" },
     { desc: "Running install.sh twice may cause race conditions", status: "Known", workaround: "Use flock or run sequentially" },
     { desc: "No Windows support (systemd required)", status: "Not planned", workaround: "Use WSL2 with systemd" },
-  ];
+  ], []);
 
   return (
     <section ref={ref} className="relative py-20 sm:py-28 px-4">
-      <div
-        className={`max-w-4xl mx-auto transition-all duration-1000 ${
-          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={visible ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-4xl mx-auto"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-yellow-400/30 text-yellow-400 bg-yellow-400/5 mb-4">
+          <Badge variant="outline" className="border-yellow-400/40 text-yellow-400 bg-yellow-400/10 mb-4">
             Transparency
           </Badge>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
@@ -1373,13 +2183,12 @@ function KnownIssuesSection() {
               Known Issues
             </span>
           </h2>
-          <p className="text-foreground/70">
+          <p className="text-foreground/80">
             Full transparency. Every bug we&apos;ve fixed and every limitation we acknowledge.
           </p>
         </div>
 
         <Accordion multiple defaultValue={["fixed", "pending"]} className="space-y-3">
-          {/* Fixed bugs */}
           <AccordionItem value="fixed" className="glass-depth !border-0 rounded-xl overflow-hidden">
             <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-white/[0.02] [&>svg]:text-owl-green">
               <div className="flex items-center gap-3">
@@ -1388,7 +2197,7 @@ function KnownIssuesSection() {
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-semibold">Fixed Bugs</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-foreground/70">
                     {fixedBugs.length} bugs fixed across 5 audit passes
                   </p>
                 </div>
@@ -1403,13 +2212,13 @@ function KnownIssuesSection() {
                   >
                     <Badge
                       variant="outline"
-                      className="text-[11px] py-0 shrink-0 border-owl-green/30 text-owl-green bg-owl-green/5"
+                      className="text-xs py-0 shrink-0 border-owl-green/40 text-owl-green bg-owl-green/10"
                     >
                       {bug.id}
                     </Badge>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-foreground/80">{bug.desc}</p>
-                      <p className="text-xs text-foreground/60 mt-0.5">
+                      <p className="text-xs text-foreground/70 mt-0.5">
                         Fix: {bug.fix} • {bug.ver}
                       </p>
                     </div>
@@ -1420,7 +2229,6 @@ function KnownIssuesSection() {
             </AccordionContent>
           </AccordionItem>
 
-          {/* Pending issues */}
           <AccordionItem value="pending" className="glass-depth !border-0 rounded-xl overflow-hidden">
             <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-white/[0.02] [&>svg]:text-yellow-400">
               <div className="flex items-center gap-3">
@@ -1429,7 +2237,7 @@ function KnownIssuesSection() {
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-semibold">Pending / Known Limitations</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-foreground/70">
                     {pendingIssues.length} items — workarounds available
                   </p>
                 </div>
@@ -1444,19 +2252,19 @@ function KnownIssuesSection() {
                   >
                     <Badge
                       variant="outline"
-                      className={`text-[11px] py-0 shrink-0 ${
+                      className={`text-xs py-0 shrink-0 ${
                         issue.status === "Pending"
-                          ? "border-yellow-400/30 text-yellow-400 bg-yellow-400/5"
+                          ? "border-yellow-400/40 text-yellow-400 bg-yellow-400/10"
                           : issue.status === "Known"
-                            ? "border-owl-magenta/30 text-owl-magenta bg-owl-magenta/5"
-                            : "border-muted-foreground/30 text-muted-foreground bg-muted-foreground/5"
+                            ? "border-owl-magenta/40 text-owl-magenta bg-owl-magenta/10"
+                            : "border-foreground/40 text-foreground/70 bg-foreground/10"
                       }`}
                     >
                       {issue.status}
                     </Badge>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-foreground/80">{issue.desc}</p>
-                      <p className="text-xs text-foreground/60 mt-0.5">
+                      <p className="text-xs text-foreground/70 mt-0.5">
                         Workaround: {issue.workaround}
                       </p>
                     </div>
@@ -1466,7 +2274,7 @@ function KnownIssuesSection() {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -1479,10 +2287,11 @@ function InfographicSection() {
 
   return (
     <section ref={ref} className="relative py-20 sm:py-28 px-4">
-      <div
-        className={`max-w-6xl mx-auto transition-all duration-1000 ${
-          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={visible ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-6xl mx-auto"
       >
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">
@@ -1501,7 +2310,7 @@ function InfographicSection() {
             className="w-full h-auto rounded-xl"
           />
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -1511,30 +2320,29 @@ function InfographicSection() {
    ──────────────────────────────────────────── */
 function Footer() {
   return (
-    <footer className="relative mt-auto border-t border-white/5">
+    <footer role="contentinfo" className="relative mt-auto border-t border-white/5">
       <div className="max-w-6xl mx-auto px-4 py-12 sm:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xl">🦉</span>
               <span className="text-lg font-bold text-owl-cyan">OWL-ORCA</span>
             </div>
-            <p className="text-sm text-foreground/60 leading-relaxed">
+            <p className="text-sm text-foreground/70 leading-relaxed">
               Self-hosted AI gateway that aggregates free-tier providers into a single
               OpenAI-compatible API endpoint. Free AI for everyone.
             </p>
           </div>
 
-          {/* Project */}
           <div>
             <h4 className="text-sm font-bold text-foreground/80 mb-3">Project</h4>
             <div className="space-y-2">
               <a
-                href="https://github.com/marktantongco/owl-orca"
+                href="https://github.com/marktantongco/owl-orca-v3"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-foreground/60 hover:text-owl-cyan transition-colors"
+                className="flex items-center gap-2 text-sm text-foreground/70 hover:text-owl-cyan transition-colors"
+                aria-label="GitHub Repository"
               >
                 <GithubIcon className="w-3.5 h-3.5" />
                 GitHub Repository
@@ -1543,7 +2351,8 @@ function Footer() {
                 href="https://github.com/marktantongco/owl-orca/blob/main/LICENSE"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-foreground/60 hover:text-owl-cyan transition-colors"
+                className="flex items-center gap-2 text-sm text-foreground/70 hover:text-owl-cyan transition-colors"
+                aria-label="MIT License"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 MIT License
@@ -1552,7 +2361,8 @@ function Footer() {
                 href="https://github.com/marktantongco/owl-orca/issues"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-foreground/60 hover:text-owl-cyan transition-colors"
+                className="flex items-center gap-2 text-sm text-foreground/70 hover:text-owl-cyan transition-colors"
+                aria-label="Report an Issue"
               >
                 <Bug className="w-3.5 h-3.5" />
                 Report an Issue
@@ -1560,7 +2370,6 @@ function Footer() {
             </div>
           </div>
 
-          {/* Sections */}
           <div>
             <h4 className="text-sm font-bold text-foreground/80 mb-3">Sections</h4>
             <div className="space-y-2">
@@ -1568,7 +2377,7 @@ function Footer() {
                 <a
                   key={item.href}
                   href={item.href}
-                  className="block text-sm text-foreground/60 hover:text-owl-cyan transition-colors"
+                  className="block text-sm text-foreground/70 hover:text-owl-cyan transition-colors"
                 >
                   {item.label}
                 </a>
@@ -1576,7 +2385,6 @@ function Footer() {
             </div>
           </div>
 
-          {/* Tech Stack */}
           <div>
             <h4 className="text-sm font-bold text-foreground/80 mb-3">Built With</h4>
             <div className="flex flex-wrap gap-1.5">
@@ -1585,7 +2393,7 @@ function Footer() {
                   <Badge
                     key={tech}
                     variant="outline"
-                    className="text-[11px] py-0 border-white/20 text-foreground/70"
+                    className="text-xs py-0 border-white/20 text-foreground/70"
                   >
                     {tech}
                   </Badge>
@@ -1595,7 +2403,6 @@ function Footer() {
           </div>
         </div>
 
-        {/* Bottom bar */}
         <Separator className="my-8 bg-white/5" />
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-foreground/50">
           <p>OWL-ORCA v8.0.0 — Five-Pass-Audit-Final Edition</p>
@@ -1614,28 +2421,39 @@ function Footer() {
    ──────────────────────────────────────────── */
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col animated-gradient-bg">
-      <NavBar />
-      <main className="flex-1">
-        <HeroSection />
-        <div className="h-px bg-gradient-to-r from-transparent via-owl-cyan/20 to-transparent my-0" />
-        <ArchitectureSection />
-        <div className="h-px bg-gradient-to-r from-transparent via-owl-cyan/20 to-transparent my-0" />
-        <StreamRacerSection />
-        <div className="h-px bg-gradient-to-r from-transparent via-owl-magenta/20 to-transparent my-0" />
-        <FeaturesSection />
-        <div className="h-px bg-gradient-to-r from-transparent via-owl-green/20 to-transparent my-0" />
-        <InfographicSection />
-        <div className="h-px bg-gradient-to-r from-transparent via-owl-green/20 to-transparent my-0" />
-        <TimelineSection />
-        <div className="h-px bg-gradient-to-r from-transparent via-owl-cyan/20 to-transparent my-0" />
-        <QuickInstallSection />
-        <div className="h-px bg-gradient-to-r from-transparent via-owl-cyan/20 to-transparent my-0" />
-        <FeatureMatrixSection />
-        <div className="h-px bg-gradient-to-r from-transparent via-yellow-400/20 to-transparent my-0" />
-        <KnownIssuesSection />
-      </main>
-      <Footer />
-    </div>
+    <ErrorBoundary>
+      <div className="min-h-screen flex flex-col animated-gradient-bg">
+        <NavBar />
+        <main role="main" className="flex-1">
+          <HeroSection />
+          <SectionSeparator />
+          <ArchitectureSection />
+          <SectionSeparator color="owl-cyan" />
+          <StreamRacerSection />
+          <SectionSeparator color="owl-magenta" />
+          <FeaturesSection />
+          <SectionSeparator color="owl-magenta" />
+          <CircuitBreakerDemo />
+          <SectionSeparator color="owl-green" />
+          <ProtocolTranslationDemo />
+          <SectionSeparator color="owl-cyan" />
+          <ProxyEcosystemSection />
+          <SectionSeparator color="owl-amber" />
+          <MemoryBudgetSection />
+          <SectionSeparator color="owl-green" />
+          <InfographicSection />
+          <SectionSeparator color="owl-green" />
+          <TimelineSection />
+          <SectionSeparator color="owl-cyan" />
+          <QuickInstallSection />
+          <SectionSeparator color="owl-cyan" />
+          <FeatureMatrixSection />
+          <SectionSeparator color="owl-amber" />
+          <KnownIssuesSection />
+        </main>
+        <Footer />
+        <ScrollToTopButton />
+      </div>
+    </ErrorBoundary>
   );
 }

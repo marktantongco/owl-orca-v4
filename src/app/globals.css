@@ -54,21 +54,22 @@
   --color-owl-navy: #0f0c29;
   --color-owl-deep: #302b63;
   --color-owl-slate: #24243e;
+  --color-owl-amber: #f59e0b;
 }
 
 :root {
   --background: #0a0a1a;
-  --foreground: #e8e8f0;
+  --foreground: #f0f0ff;
   --card: #12122a;
-  --card-foreground: #e8e8f0;
+  --card-foreground: #f0f0ff;
   --popover: #12122a;
-  --popover-foreground: #e8e8f0;
+  --popover-foreground: #f0f0ff;
   --primary: #00d4ff;
   --primary-foreground: #0a0a1a;
   --secondary: #1a1a3e;
-  --secondary-foreground: #e8e8f0;
+  --secondary-foreground: #f0f0ff;
   --muted: #1a1a3e;
-  --muted-foreground: #a0a0c0;
+  --muted-foreground: #b0b0d0;
   --accent: #10b981;
   --accent-foreground: #0a0a1a;
   --destructive: #ef4444;
@@ -82,11 +83,11 @@
   --chart-5: #ef4444;
   --radius: 0.75rem;
   --sidebar: #0a0a1a;
-  --sidebar-foreground: #e8e8f0;
+  --sidebar-foreground: #f0f0ff;
   --sidebar-primary: #00d4ff;
   --sidebar-primary-foreground: #0a0a1a;
   --sidebar-accent: #1a1a3e;
-  --sidebar-accent-foreground: #e8e8f0;
+  --sidebar-accent-foreground: #f0f0ff;
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: #00d4ff;
 }
@@ -189,6 +190,19 @@
 @keyframes circuit-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(1.15); }
+}
+
+/* Circuit breaker color transition */
+@keyframes circuit-state-change {
+  0%, 100% { border-color: rgba(16,185,129,0.5); box-shadow: 0 0 8px rgba(16,185,129,0.3); }
+  33% { border-color: rgba(239,68,68,0.5); box-shadow: 0 0 8px rgba(239,68,68,0.3); }
+  66% { border-color: rgba(245,158,11,0.5); box-shadow: 0 0 8px rgba(245,158,11,0.3); }
+}
+
+/* Protocol translation pulse */
+@keyframes translation-pulse {
+  0%, 100% { opacity: 0.6; transform: scaleX(0.95); }
+  50% { opacity: 1; transform: scaleX(1); }
 }
 
 /* Flow path for architecture */
@@ -363,6 +377,41 @@
 
 .flow-arrow-animated {
   animation: flow-arrow-pulse 2s ease-in-out infinite;
+}
+
+/* ===== New Utility Classes ===== */
+
+/* Vivid icon - enhanced brightness and glow */
+.vivid-icon {
+  filter: brightness(1.3) drop-shadow(0 0 6px currentColor);
+}
+
+/* Vivid text - text glow effect */
+.vivid-text {
+  text-shadow: 0 0 12px currentColor;
+}
+
+/* Proxy comparison card */
+.proxy-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 16px;
+}
+
+/* Circuit breaker states */
+.circuit-closed {
+  border-color: rgba(16,185,129,0.5);
+  box-shadow: 0 0 12px rgba(16,185,129,0.2);
+}
+
+.circuit-open {
+  border-color: rgba(239,68,68,0.5);
+  box-shadow: 0 0 12px rgba(239,68,68,0.2);
+}
+
+.circuit-half {
+  border-color: rgba(245,158,11,0.5);
+  box-shadow: 0 0 12px rgba(245,158,11,0.2);
 }
 
 /* Custom scrollbar */

@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "OWL-ORCA — AI Gateway with Stream Racing, Protocol Translation & Circuit Breakers",
   description:
-    "Self-hosted AI gateway that aggregates free-tier providers into a single OpenAI-compatible endpoint. Race multiple providers, first byte wins.",
+    "Self-hosted AI gateway that aggregates free-tier providers into a single OpenAI-compatible endpoint. Race multiple providers, first byte wins. Circuit Breaker Demos, Protocol Translation Visualization, proxy comparison.",
   keywords: [
     "OWL-ORCA",
     "AI gateway",
@@ -24,6 +24,7 @@ export const metadata: Metadata = {
     "protocol translation",
     "free AI",
     "OpenAI compatible",
+    "proxy comparison",
   ],
   icons: {
     icon: "/favicon.ico",

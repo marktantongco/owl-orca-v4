@@ -6,13 +6,13 @@
 
 **Free AI for everyone. Race multiple providers. First byte wins.**
 
-[![Version](https://img.shields.io/badge/version-8.0.0-blue.svg)](https://github.com/marktantongco/owl-orca-v2)
+[![Version](https://img.shields.io/badge/version-8.0.0-blue.svg)](https://github.com/marktantongco/owl-orca-v3-v3)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Shell](https://img.shields.io/badge/bash-5.0%2B-orange.svg)](https://www.gnu.org/software/bash/)
 [![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)](https://www.python.org/)
-[![RAM](https://img.shields.io/badge/RAM-8GB%20Optimized-purple.svg)](https://github.com/marktantongco/owl-orca-v2)
-[![UI](https://img.shields.io/badge/UI-Vivid%20v2-cyan.svg)](https://owl-orca-v2.vercel.app)
-[![Deploy](https://img.shields.io/badge/Vercel-Live-000000?logo=vercel)](https://owl-orca-v2.vercel.app)
+[![RAM](https://img.shields.io/badge/RAM-8GB%20Optimized-purple.svg)](https://github.com/marktantongco/owl-orca-v3-v3)
+[![UI](https://img.shields.io/badge/UI-Vivid%20v2-cyan.svg)](https://owl-orca-v3.vercel.app)
+[![Deploy](https://img.shields.io/badge/Vercel-Live-000000?logo=vercel)](https://owl-orca-v3.vercel.app)
 
 </div>
 
@@ -193,10 +193,10 @@ CLOSED ────(5 consecutive failures)────▶ OPEN
 
 ```bash
 # One-line install (recommended)
-curl -fsSL https://raw.githubusercontent.com/marktantongco/owl-orca/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/marktantongco/owl-orca-v3/main/install.sh | bash
 
 # Or clone and run locally
-git clone https://github.com/marktantongco/owl-orca.git
+git clone https://github.com/marktantongco/owl-orca-v3.git
 cd owl-orca
 chmod +x install.sh
 ./install.sh
@@ -455,34 +455,55 @@ The script automatically detects the system architecture and libc variant (`musl
 
 This repo includes a **Next.js landing page** at the repo root — a kinetic autopoiesis UI with stream racing visualization. Deployed on Vercel.
 
-**Live site**: [owl-orca-v2.vercel.app](https://owl-orca-v2.vercel.app)
+**Live site**: [owl-orca-v3.vercel.app](https://owl-orca-v3.vercel.app)
 
-### v2 Vivid UI Upgrades
+### v3 Vivid UI Upgrades — Impeccable Edition
 
-This v2 edition features a comprehensive contrast, typography, and visual upgrade over the original:
+This v3 edition delivers a comprehensive contrast, typography, interactivity, and error-handling upgrade — the most thorough revision yet:
 
-| Category | v1 (Original) | v2 (Vivid Edition) |
-|----------|---------------|-------------------|
-| Icon visibility | `bg-current/10` nearly invisible | `bg-current/20` + drop-shadow glow effects |
-| Flow arrows | `text-muted-foreground/40` unreadable | `text-owl-cyan/50` with animated pulse |
-| Feature descriptions | `text-xs text-muted-foreground` | `text-sm text-foreground/70` vivid & readable |
-| Sublabels | `text-[10px]` too small | `text-xs` minimum with `text-foreground/60` |
-| Nav items | Barely visible on glass | `text-foreground/70` with bright hover |
-| Table headers | `text-muted-foreground` dim | `font-bold text-foreground/90` crisp |
-| Glass borders | 0.1 opacity | 0.14 opacity for depth |
-| Muted text color | `#8888aa` low contrast | `#a0a0c0` significantly more readable |
-| Section separators | None | Gradient cyan→transparent lines |
-| Icon glow effects | None | `icon-glow-cyan/green/magenta` utilities |
-| Scroll offset | No offset (nav covers) | `scroll-mt-20` on all sections |
+| Category | v2 (Vivid) | v3 (Impeccable Edition) |
+|----------|------------|------------------------|
+| Icon visibility | `bg-current/20` + glow | `bg-current/25` + `drop-shadow` + `vivid-icon` utility |
+| Foreground text | `#e8e8f0` | `#f0f0ff` — higher contrast against deep navy |
+| Muted text | `#a0a0c0` | `#b0b0d0` — significantly more readable |
+| Badge text | `text-[11px]` too small | `text-xs` minimum with `/40` borders, `/10` backgrounds |
+| Sublabels | `text-foreground/60` | `text-foreground/70` minimum — no more dim text |
+| Descriptions | `text-foreground/70` | `text-foreground/80` — vivid and readable |
+| Table cells | `text-xs text-foreground/80` | `text-sm text-foreground/80` — larger, readable |
+| Feature card glow | Hardcoded cyan hover | Color-aware glow matching card accent color |
+| Nav items | No active indicator | IntersectionObserver-based active section + animated indicator |
+| Animations | CSS-only | framer-motion (`AnimatePresence`, `whileInView`, `layoutId`) |
+| Circuit Breaker | Static description | **Interactive demo** with state machine simulation |
+| Protocol Translation | Static table | **Live demo** with side-by-side Anthropic↔OpenAI SSE visualization |
+| Proxy Comparison | No section | **Proxy Ecosystem** section with cross-field insights (psychology, economics, biology, history) |
+| Memory Budget | Static table | **Visual stacked bar chart** with animated segments |
+| StreamRacer | Fixed animation | **Re-Race button** with randomized winner + latency numbers |
+| Error handling | None | **React Error Boundary** + clipboard fallback |
+| Scroll-to-top | None | **Animated scroll-to-top button** with framer-motion |
+| Section separators | 1px gradient lines | **2px gradient lines** for clearer visual breaks |
+| Accessibility | Basic | `role="banner/main/contentinfo"`, `aria-label` on all interactive elements |
+| Footer links | `text-foreground/60` invisible | `text-foreground/70` with vivid hover states |
+| Copy button | `text-muted-foreground` | `text-foreground/70` with clear feedback |
 
 ### Design System
 
 | Layer | Ratio | Implementation |
 |-------|-------|---------------|
-| Kinetic Spatial | 40% | Floating particles, animated owl eyes, race track animations, parallax drift |
-| Autopoietic Canvas | 35% | Breathing orbs, morphing blobs, organic gradient shifts |
-| Glass Depth | 25% | Frosted glass cards, layered blur, depth shadows |
-| Vivid Contrast | Enhancement | Icon glow effects, brighter muted text, gradient separators, larger typography |
+| Kinetic Spatial | 35% | Floating particles, animated owl eyes, race track with re-race, circuit breaker demo |
+| Autopoietic Canvas | 30% | Breathing orbs, morphing blobs, protocol translation animation, memory budget animation |
+| Glass Depth | 20% | Frosted glass cards, layered blur, depth shadows, proxy ecosystem comparison cards |
+| Interactive Demos | 15% | Circuit breaker state machine, protocol translation visualizer, re-raceable stream racing |
+| Vivid Contrast | Enhancement | `vivid-icon` / `vivid-text` utilities, `#f0f0ff` foreground, color-aware glow, framer-motion transitions |
+
+### Interactive Demos
+
+| Demo | Section | What It Does |
+|------|---------|-------------|
+| **Circuit Breaker** | Circuits | Simulates CLOSED → OPEN → HALF-OPEN state transitions with failure counter, cooldown timer, and probe logic |
+| **Protocol Translation** | Protocol | Side-by-side Anthropic SSE ↔ OpenAI SSE with animated scrolling events and event mapping |
+| **Stream Racing** | StreamRacer | Re-Race button randomizes winner with latency numbers and dynamic winner callout |
+| **Memory Budget** | Memory | Visual stacked bar chart showing 384+128+256=768MB with idle/max per component |
+| **Proxy Ecosystem** | Ecosystem | Cross-field insights (psychology, economics, biology, history) + comparison vs simple proxy, Kong, HAProxy, OpenRouter |
 
 ### Quick Start
 
@@ -568,10 +589,10 @@ MIT License — Free for personal and commercial use.
 
 <div align="center">
 
-**OWL-ORCA v8.0.0** — Five-Pass-Audit-Final Edition — Vivid UI v2
+**OWL-ORCA v8.0.0** — Five-Pass-Audit-Final Edition — Vivid UI v3
 
 *Stream Racing * Protocol Translation * Safe-Mode * Radix Routing * Circuit Breakers * Zero-Downtime*
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?logo=vercel)](https://owl-orca-v2.vercel.app)
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?logo=vercel)](https://owl-orca-v3.vercel.app)
 
 </div>
