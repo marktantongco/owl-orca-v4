@@ -25,10 +25,7 @@ import {
   ArrowRight,
   Terminal,
   ArrowUp,
-  Activity,
   Cpu,
-  HardDrive,
-  Play,
   RotateCcw,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -67,36 +64,52 @@ import { Separator } from "@/components/ui/separator";
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
+  errorInfo: React.ErrorInfo | null;
 }
 
 class ErrorBoundary extends Component<
-  { children: React.ReactNode },
+  { children: React.ReactNode; sectionName?: string },
   ErrorBoundaryState
 > {
-  constructor(props: { children: React.ReactNode }) {
+  constructor(props: { children: React.ReactNode; sectionName?: string }) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, errorInfo: null };
   }
 
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
 
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error(
+      `[OWL-ORCA ErrorBoundary${this.props.sectionName ? ` - ${this.props.sectionName}` : ''}]`,
+      error.message,
+      '\nComponent Stack:',
+      errorInfo.componentStack
+    );
+    this.setState({ errorInfo });
+  }
+
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-8">
+        <div className="min-h-[200px] flex flex-col items-center justify-center bg-background text-foreground p-8">
           <div className="glass-depth p-8 rounded-2xl max-w-md text-center">
-            <AlertTriangle className="w-12 h-12 text-owl-amber mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2 text-owl-cyan">
+            <AlertTriangle className="w-12 h-12 text-owl-amber mx-auto mb-4 vivid-icon" />
+            <h2 className="text-xl font-bold mb-2 text-owl-cyan heading-glow">
               Something went wrong
             </h2>
-            <p className="text-foreground/80 mb-4">
+            <p className="text-foreground/90 mb-2">
               {this.state.error?.message || "An unexpected error occurred."}
             </p>
+            {this.props.sectionName && (
+              <p className="text-xs text-foreground/60 mb-4">
+                Section: {this.props.sectionName}
+              </p>
+            )}
             <button
-              onClick={() => this.setState({ hasError: false, error: null })}
-              className="px-4 py-2 rounded-lg bg-owl-cyan/20 border border-owl-cyan/40 text-owl-cyan hover:bg-owl-cyan/30 transition-all"
+              onClick={() => this.setState({ hasError: false, error: null, errorInfo: null })}
+              className="px-4 py-2 rounded-lg bg-owl-cyan/20 border border-owl-cyan/60 text-owl-cyan hover:bg-owl-cyan/30 transition-all"
               aria-label="Retry rendering"
             >
               Try Again
@@ -537,14 +550,14 @@ function HeroSection() {
           </span>
         </h1>
 
-        <p className="text-xl sm:text-2xl md:text-3xl text-foreground/80 max-w-2xl mx-auto mb-6 leading-relaxed">
+        <p className="text-xl sm:text-2xl md:text-3xl text-foreground/90 max-w-2xl mx-auto mb-6 leading-relaxed">
           AI Gateway with{" "}
           <span className="text-owl-cyan font-semibold">Stream Racing</span>,{" "}
           <span className="text-owl-green font-semibold">Protocol Translation</span> &{" "}
           <span className="text-owl-magenta font-semibold">Circuit Breakers</span>
         </p>
 
-        <p className="text-sm sm:text-base text-foreground/70 mb-8">
+        <p className="text-sm sm:text-base text-foreground/85 mb-8">
           Free AI for everyone. Race multiple providers. First byte wins.
         </p>
 
@@ -562,7 +575,7 @@ function HeroSection() {
             href="https://github.com/marktantongco/owl-orca-v3"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/14 text-foreground/70 hover:text-white hover:bg-white/10 transition-all"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/14 text-foreground/80 hover:text-white hover:bg-white/10 transition-all"
             aria-label="View on GitHub"
           >
             <GithubIcon className="w-4 h-4" />
@@ -614,15 +627,15 @@ function ArchitectureSection() {
         className="max-w-6xl mx-auto"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-owl-cyan/40 text-owl-cyan bg-owl-cyan/10 mb-4">
+          <Badge variant="outline" className="border-owl-cyan/60 text-owl-cyan bg-owl-cyan/15 mb-4">
             System Design
           </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 heading-glow">
             <span className="bg-gradient-to-r from-owl-cyan to-owl-green bg-clip-text text-transparent">
               Architecture
             </span>
           </h2>
-          <p className="text-foreground/80 max-w-2xl mx-auto">
+          <p className="text-foreground/90 max-w-2xl mx-auto">
             OWL-ORCA routes AI requests through a local proxy and router stack, racing multiple
             free-tier providers simultaneously. The first provider to respond wins.
           </p>
@@ -658,7 +671,7 @@ function ArchitectureSection() {
             <FlowArrow />
             <div className="glass-strong p-4 rounded-xl text-center min-w-[160px] glow-cyan">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-owl-cyan/25 flex items-center justify-center drop-shadow-[0_0_8px_rgba(0,212,255,0.4)]">
+                <div className="w-8 h-8 rounded-lg bg-owl-cyan/30 flex items-center justify-center drop-shadow-[0_0_8px_rgba(0,212,255,0.4)]">
                   <Zap className="w-4 h-4 text-owl-cyan" />
                 </div>
               </div>
@@ -803,15 +816,15 @@ function StreamRacerSection() {
         className="max-w-6xl mx-auto relative z-10"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-owl-cyan/40 text-owl-cyan bg-owl-cyan/10 mb-4">
+          <Badge variant="outline" className="border-owl-cyan/60 text-owl-cyan bg-owl-cyan/15 mb-4">
             Core Engine
           </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 heading-glow">
             <span className="bg-gradient-to-r from-owl-cyan to-owl-green bg-clip-text text-transparent">
               StreamRacer
             </span>
           </h2>
-          <p className="text-foreground/80 max-w-2xl mx-auto">
+          <p className="text-foreground/90 max-w-2xl mx-auto">
             Fire requests to ALL eligible providers simultaneously. The first byte wins — all other
             streams are immediately cancelled. Zero wasted latency.
           </p>
@@ -875,10 +888,10 @@ function StreamRacerSection() {
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg ${
                   item.color === "cyan"
-                    ? "bg-owl-cyan/25 text-owl-cyan border border-owl-cyan/40 icon-glow-cyan"
+                    ? "bg-owl-cyan/30 text-owl-cyan border border-owl-cyan/40 icon-glow-cyan"
                     : item.color === "magenta"
-                      ? "bg-owl-magenta/25 text-owl-magenta border border-owl-magenta/40 icon-glow-magenta"
-                      : "bg-owl-green/25 text-owl-green border border-owl-green/40 icon-glow-green"
+                      ? "bg-owl-magenta/30 text-owl-magenta border border-owl-magenta/40 icon-glow-magenta"
+                      : "bg-owl-green/30 text-owl-green border border-owl-green/40 icon-glow-green"
                 }`}
               >
                 {item.step}
@@ -917,7 +930,7 @@ function RaceTrack({
           {name}
         </span>
         {latency && (
-          <span className="text-xs text-foreground/70 font-mono">{latency}ms</span>
+          <span className="text-xs text-foreground/80 font-mono">{latency}ms</span>
         )}
         {winner && (
           <Badge
@@ -1025,15 +1038,15 @@ function FeaturesSection() {
         className="max-w-6xl mx-auto relative z-10"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-owl-magenta/40 text-owl-magenta bg-owl-magenta/10 mb-4">
+          <Badge variant="outline" className="border-owl-magenta/60 text-owl-magenta bg-owl-magenta/15 mb-4">
             Capabilities
           </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 heading-glow">
             <span className="bg-gradient-to-r from-owl-magenta to-owl-cyan bg-clip-text text-transparent">
               Feature Set
             </span>
           </h2>
-          <p className="text-foreground/80 max-w-2xl mx-auto">
+          <p className="text-foreground/90 max-w-2xl mx-auto">
             Battle-tested through five audit passes. Every feature is production-hardened.
           </p>
         </div>
@@ -1057,7 +1070,7 @@ function FeatureCard({
 }) {
   const colorMap = useMemo(() => ({
     cyan: {
-      iconBg: "bg-owl-cyan/25",
+      iconBg: "bg-owl-cyan/30",
       iconColor: "text-owl-cyan",
       borderHover: "hover:border-owl-cyan/30",
       glowHover: "hover:shadow-[0_0_20px_rgba(0,212,255,0.1)]",
@@ -1065,7 +1078,7 @@ function FeatureCard({
       hoverGlow: "group-hover:drop-shadow-[0_0_8px_rgba(0,212,255,0.4)]",
     },
     green: {
-      iconBg: "bg-owl-green/25",
+      iconBg: "bg-owl-green/30",
       iconColor: "text-owl-green",
       borderHover: "hover:border-owl-green/30",
       glowHover: "hover:shadow-[0_0_20px_rgba(16,185,129,0.1)]",
@@ -1073,7 +1086,7 @@ function FeatureCard({
       hoverGlow: "group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]",
     },
     magenta: {
-      iconBg: "bg-owl-magenta/25",
+      iconBg: "bg-owl-magenta/30",
       iconColor: "text-owl-magenta",
       borderHover: "hover:border-owl-magenta/30",
       glowHover: "hover:shadow-[0_0_20px_rgba(224,64,251,0.1)]",
@@ -1093,7 +1106,7 @@ function FeatureCard({
       className={`glass-depth p-5 transition-all duration-300 group ${c.borderHover} ${c.glowHover} hover:scale-[1.02]`}
     >
       <div className={`w-10 h-10 rounded-xl ${c.iconBg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform ${c.hoverGlow}`}>
-        <feature.icon className={`w-5 h-5 ${c.iconColor}`} />
+        <feature.icon className={`w-5 h-5 ${c.iconColor} vivid-icon`} />
       </div>
       <h3 className="text-base font-bold mb-1">{feature.title}</h3>
       <Badge variant="outline" className={`text-xs py-0 px-1.5 mb-2 ${c.badge}`}>
@@ -1195,15 +1208,15 @@ function CircuitBreakerDemo() {
         className="max-w-6xl mx-auto relative z-10"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-owl-magenta/40 text-owl-magenta bg-owl-magenta/10 mb-4">
+          <Badge variant="outline" className="border-owl-magenta/60 text-owl-magenta bg-owl-magenta/15 mb-4">
             Interactive Demo
           </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 heading-glow">
             <span className="bg-gradient-to-r from-owl-magenta to-owl-amber bg-clip-text text-transparent">
               Circuit Breaker
             </span>
           </h2>
-          <p className="text-foreground/80 max-w-2xl mx-auto">
+          <p className="text-foreground/90 max-w-2xl mx-auto">
             Watch how circuit breakers protect your system. 5 consecutive failures trigger the OPEN state,
             a 60-second cooldown leads to HALF-OPEN, and a successful probe restores the CLOSED state.
           </p>
@@ -1227,7 +1240,7 @@ function CircuitBreakerDemo() {
                   <p className={`text-sm font-bold ${stateTextColors[s]} ${state === s ? "vivid-text" : ""}`}>
                     {s}
                   </p>
-                  <p className="text-xs text-foreground/70 mt-0.5">
+                  <p className="text-xs text-foreground/80 mt-0.5">
                     {s === "CLOSED" ? "All clear" : s === "OPEN" ? "Blocked" : "Probing"}
                   </p>
                 </motion.div>
@@ -1307,7 +1320,7 @@ function CircuitBreakerDemo() {
             )}
             <button
               onClick={resetCircuit}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-foreground/70 hover:bg-white/10 transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-foreground/80 hover:bg-white/10 transition-all"
               aria-label="Reset circuit breaker"
             >
               <RotateCcw className="w-4 h-4" />
@@ -1378,15 +1391,15 @@ function ProtocolTranslationDemo() {
         className="max-w-6xl mx-auto relative z-10"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-owl-green/40 text-owl-green bg-owl-green/10 mb-4">
+          <Badge variant="outline" className="border-owl-green/60 text-owl-green bg-owl-green/15 mb-4">
             Live Visualization
           </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 heading-glow">
             <span className="bg-gradient-to-r from-owl-green to-owl-cyan bg-clip-text text-transparent">
               Protocol Translation
             </span>
           </h2>
-          <p className="text-foreground/80 max-w-2xl mx-auto">
+          <p className="text-foreground/90 max-w-2xl mx-auto">
             Real-time SSE translation from Anthropic format to OpenAI format. Every chunk is translated on-the-fly with zero buffering.
           </p>
         </div>
@@ -1470,29 +1483,57 @@ function ProxyEcosystemSection() {
     {
       icon: "🧠",
       field: "Psychology",
-      title: "Emotional Regulation",
-      desc: "Circuit breakers mirror human resilience patterns — just as we need cool-down periods after emotional overwhelm, systems need recovery windows before retrying failed operations.",
+      title: "Emotional Regulation & Circuit Breakers",
+      desc: "Circuit breakers mirror the human amygdala's threat-response cycle: emotional overwhelm triggers shutdown (OPEN state), a cooling period allows recovery (cooldown), and a cautious test probe (HALF-OPEN) determines whether it's safe to re-engage. Just as cognitive behavioral therapy teaches graded exposure to feared stimuli, the half-open probe is a systematic desensitization protocol for distributed systems. This isn't metaphor — it's the same feedback loop operating at a different scale.",
       color: "magenta" as const,
     },
     {
       icon: "📊",
       field: "Economics",
-      title: "Competitive Bidding",
-      desc: "Stream racing is market competition — multiple providers competing for your request, like a reverse auction where the fastest response wins the contract.",
+      title: "Competitive Bidding & Market Dynamics",
+      desc: "Stream racing implements a first-price sealed-bid auction where latency is the bid. In economic theory, competitive markets drive prices toward marginal cost — here, racing drives response time toward the physical minimum. The key insight from auction theory: Vickrey auctions (second-price) produce truthful bidding, but first-byte-wins (first-price) creates an incentive for providers to invest in infrastructure. OWL-ORCA's racing engine is a market maker that turns AI providers into bidders competing on speed.",
       color: "cyan" as const,
     },
     {
       icon: "🧬",
       field: "Biology",
-      title: "Autopoiesis",
-      desc: "Self-maintaining systems that regenerate themselves. Like cellular repair, OWL-ORCA auto-heals failed circuits and maintains homeostasis through probe-based recovery.",
+      title: "Autopoiesis & Self-Maintaining Systems",
+      desc: "Maturana and Varela defined autopoiesis as a system that regenerates its own components through its own operation. OWL-ORCA's circuit breaker system is autopoietic: it regenerates failed connections through probe-based recovery, maintains internal homeostasis through backpressure control, and preserves its boundary through the forward proxy. Like a cell membrane, the forward proxy is selectively permeable — allowing authenticated requests while blocking malformed ones. The system doesn't just recover; it regenerates.",
       color: "green" as const,
     },
     {
       icon: "📜",
       field: "History",
-      title: "Industrial Revolution",
-      desc: "Single-provider (monopoly) → multi-provider (competition) → racing (parallelism). The same pattern that transformed manufacturing now transforms AI access.",
+      title: "Industrial Revolution & AI Parallelism",
+      desc: "The transition from single-provider routing to stream racing mirrors the shift from cottage industry to factory production. Before factories, one artisan made one product (single routing). Factories introduced parallel assembly lines (multi-provider). Stream racing is the AI equivalent of Just-In-Time manufacturing — minimizing inventory (latency) by firing all production lines simultaneously and using whichever finishes first. The same creative destruction that transformed manufacturing now transforms AI access: middlemen (commercial gateways) are disintermediated by direct, competitive routing.",
+      color: "amber" as const,
+    },
+    {
+      icon: "⚛️",
+      field: "Physics",
+      title: "Quantum Superposition & Concurrent Requests",
+      desc: "Stream racing implements a macro-scale analogue of quantum superposition: all provider requests exist in a simultaneous 'maybe' state until the first byte collapses the wave function into a single outcome. Like Schrodinger's cat, all providers are both 'winning' and 'losing' until observation (first byte) forces reality to choose. The cancellation of losing streams is decoherence — the environment collapsing possibilities into actuality. The difference: quantum systems can't choose the fastest path. We can.",
+      color: "cyan" as const,
+    },
+    {
+      icon: "🏗️",
+      field: "Architecture",
+      title: "Radix Trees & Urban Wayfinding",
+      desc: "A radix tree route matcher is the digital equivalent of a well-designed city grid. Just as a skilled navigator doesn't scan every street (regex) but follows hierarchical district markers (tree traversal), the radix tree eliminates brute-force path matching. Christopher Alexander's 'pattern language' for architecture applies here: good routing, like good urban design, makes the correct path obvious and efficient. O(1) path matching is the expressway; regex is the traffic jam.",
+      color: "green" as const,
+    },
+    {
+      icon: "🛡️",
+      field: "Military Strategy",
+      title: "Defense in Depth & Proxy Layering",
+      desc: "The forward proxy → router → provider stack implements defense in depth, a military doctrine where multiple defensive layers ensure no single point of failure. The forward proxy is the perimeter defense (authentication), the router is the tactical command (routing decisions), and circuit breakers are the strategic reserves (fallback logic). When one layer fails, the next absorbs the impact. The SIGHUP hot-reload is a changing of the guard — the defense never sleeps.",
+      color: "magenta" as const,
+    },
+    {
+      icon: "🔄",
+      field: "Ecology",
+      title: "Keystone Species & Provider Diversity",
+      desc: "In ecology, a keystone species supports the entire ecosystem — remove it and the system collapses. A single AI provider is a keystone: lose it and your entire AI pipeline fails. Stream racing introduces biodiversity: multiple providers filling the same niche (ecological redundancy). If one provider goes extinct (circuit opens), others fill the gap. The system becomes resilient through diversity, the same principle that makes rainforests survive drought and coral reefs recover from bleaching.",
       color: "amber" as const,
     },
   ], []);
@@ -1504,11 +1545,13 @@ function ProxyEcosystemSection() {
         "No stream racing — routes to one backend only",
         "No protocol translation — what goes in comes out",
         "No circuit breakers — failures cascade to client",
+        "No authentication — relies on network-level ACLs",
       ],
       owlSolutions: [
         "Race multiple providers simultaneously",
         "Real-time Anthropic ↔ OpenAI translation",
         "Automatic fault detection with probe recovery",
+        "Fernet-encrypted token management built-in",
       ],
     },
     {
@@ -1517,11 +1560,13 @@ function ProxyEcosystemSection() {
         "No free-tier provider aggregation",
         "No stream racing — sequential only",
         "Requires paid plugins for AI features",
+        "Complex plugin ecosystem adds latency",
       ],
       owlSolutions: [
         "Aggregates free-tier providers out of the box",
         "Built-in stream racing engine",
         "All AI features included, zero cost",
+        "Single binary, zero dependencies",
       ],
     },
     {
@@ -1530,11 +1575,13 @@ function ProxyEcosystemSection() {
         "No protocol translation capability",
         "No circuit breakers with probe logic",
         "Round-robin only, no first-byte-wins",
+        "No SSE streaming awareness",
       ],
       owlSolutions: [
         "Full SSE format translation layer",
         "Half-open circuit breaker with probes",
         "First-byte-wins racing strategy",
+        "Chunk-by-chunk streaming with backpressure",
       ],
     },
     {
@@ -1543,11 +1590,13 @@ function ProxyEcosystemSection() {
         "Costs money per API call",
         "No self-hosting option",
         "Vendor lock-in to their infrastructure",
+        "No control over routing logic",
       ],
       owlSolutions: [
         "100% free using free-tier providers",
         "Self-hosted on your own machine",
         "Open source, no vendor lock-in",
+        "Full control over race/canary/fallback strategies",
       ],
     },
   ], []);
@@ -1563,15 +1612,15 @@ function ProxyEcosystemSection() {
         className="max-w-6xl mx-auto relative z-10"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-owl-cyan/40 text-owl-cyan bg-owl-cyan/10 mb-4">
+          <Badge variant="outline" className="border-owl-cyan/60 text-owl-cyan bg-owl-cyan/15 mb-4">
             Cross-Domain Insights
           </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 heading-glow">
             <span className="bg-gradient-to-r from-owl-cyan via-owl-green to-owl-amber bg-clip-text text-transparent">
               Proxy Ecosystem
             </span>
           </h2>
-          <p className="text-foreground/80 max-w-2xl mx-auto">
+          <p className="text-foreground/90 max-w-2xl mx-auto">
             OWL-ORCA in context — how proxy architecture connects to psychology, economics, biology, and history. Plus a competitive analysis.
           </p>
         </div>
@@ -1584,12 +1633,12 @@ function ProxyEcosystemSection() {
               whileHover={{ scale: 1.02 }}
               className={`glass-depth p-5 transition-all ${
                 insight.color === "cyan"
-                  ? "hover:border-owl-cyan/30 hover:shadow-[0_0_20px_rgba(0,212,255,0.1)]"
+                  ? "hover:border-owl-cyan/40 hover:shadow-[0_0_20px_rgba(0,212,255,0.15)]"
                   : insight.color === "green"
-                    ? "hover:border-owl-green/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.1)]"
+                    ? "hover:border-owl-green/40 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)]"
                     : insight.color === "magenta"
-                      ? "hover:border-owl-magenta/30 hover:shadow-[0_0_20px_rgba(224,64,251,0.1)]"
-                      : "hover:border-owl-amber/30 hover:shadow-[0_0_20px_rgba(245,158,11,0.1)]"
+                      ? "hover:border-owl-magenta/40 hover:shadow-[0_0_20px_rgba(224,64,251,0.15)]"
+                      : "hover:border-owl-amber/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)]"
               }`}
             >
               <div className="text-2xl mb-3">{insight.icon}</div>
@@ -1597,24 +1646,24 @@ function ProxyEcosystemSection() {
                 variant="outline"
                 className={`text-xs mb-2 ${
                   insight.color === "cyan"
-                    ? "border-owl-cyan/40 text-owl-cyan bg-owl-cyan/10"
+                    ? "border-owl-cyan/60 text-owl-cyan bg-owl-cyan/15"
                     : insight.color === "green"
-                      ? "border-owl-green/40 text-owl-green bg-owl-green/10"
+                      ? "border-owl-green/60 text-owl-green bg-owl-green/15"
                       : insight.color === "magenta"
-                        ? "border-owl-magenta/40 text-owl-magenta bg-owl-magenta/10"
-                        : "border-owl-amber/40 text-owl-amber bg-owl-amber/10"
+                        ? "border-owl-magenta/60 text-owl-magenta bg-owl-magenta/15"
+                        : "border-owl-amber/60 text-owl-amber bg-owl-amber/15"
                 }`}
               >
                 {insight.field}
               </Badge>
-              <h3 className="text-base font-bold mb-2">{insight.title}</h3>
-              <p className="text-sm text-foreground/80 leading-relaxed">{insight.desc}</p>
+              <h3 className="text-base font-bold mb-2 text-vivid">{insight.title}</h3>
+              <p className="text-sm text-foreground/85 leading-relaxed">{insight.desc}</p>
             </motion.div>
           ))}
         </div>
 
         {/* Comparison cards */}
-        <h3 className="text-xl font-bold text-center mb-6 text-foreground/80">How OWL-ORCA Compares</h3>
+        <h3 className="text-xl font-bold text-center mb-6 text-foreground/90 heading-glow">How OWL-ORCA Compares</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {comparisonCards.map((card) => (
             <div key={card.name} className="proxy-card p-5">
@@ -1671,15 +1720,15 @@ function MemoryBudgetSection() {
         className="max-w-6xl mx-auto relative z-10"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-owl-amber/40 text-owl-amber bg-owl-amber/10 mb-4">
+          <Badge variant="outline" className="border-owl-amber/60 text-owl-amber bg-owl-amber/15 mb-4">
             Resource Planning
           </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 heading-glow">
             <span className="bg-gradient-to-r from-owl-amber to-owl-cyan bg-clip-text text-transparent">
               Memory Budget
             </span>
           </h2>
-          <p className="text-foreground/80 max-w-2xl mx-auto">
+          <p className="text-foreground/90 max-w-2xl mx-auto">
             Optimized for 8GB systems. The entire OWL-ORCA stack uses less than 10% of available RAM at peak, leaving plenty of headroom.
           </p>
         </div>
@@ -1801,15 +1850,15 @@ function TimelineSection() {
         className="max-w-6xl mx-auto"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-owl-green/40 text-owl-green bg-owl-green/10 mb-4">
+          <Badge variant="outline" className="border-owl-green/60 text-owl-green bg-owl-green/15 mb-4">
             Evolution
           </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 heading-glow">
             <span className="bg-gradient-to-r from-owl-green to-owl-cyan bg-clip-text text-transparent">
               Version Timeline
             </span>
           </h2>
-          <p className="text-foreground/80 max-w-2xl mx-auto">
+          <p className="text-foreground/90 max-w-2xl mx-auto">
             From base infrastructure to five-pass audit final. Every version battle-tested.
           </p>
         </div>
@@ -1857,11 +1906,11 @@ function TimelineSection() {
                   </Badge>
                 </div>
                 <p className="text-base font-bold mb-1">{v.codename}</p>
-                <p className="text-xs text-foreground/70 mb-2 flex items-center gap-1">
+                <p className="text-xs text-foreground/80 mb-2 flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   {v.date}
                 </p>
-                <p className="text-sm text-foreground/70 leading-relaxed">{v.key}</p>
+                <p className="text-sm text-foreground/80 leading-relaxed">{v.key}</p>
               </div>
             );
           })}
@@ -1882,10 +1931,44 @@ function QuickInstallSection() {
     'curl -fsSL https://raw.githubusercontent.com/marktantongco/owl-orca-v3/main/install.sh | bash';
 
   const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(installCmd).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(installCmd).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        }).catch(() => {
+          // Clipboard API failed — fallback to execCommand
+          try {
+            const textarea = document.createElement('textarea');
+            textarea.value = installCmd;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          } catch (fallbackErr) {
+            console.error('[OWL-ORCA] Copy failed:', fallbackErr);
+          }
+        });
+      } else {
+        // Clipboard API not available — fallback to execCommand
+        const textarea = document.createElement('textarea');
+        textarea.value = installCmd;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch (err) {
+      console.error('[OWL-ORCA] Copy failed:', err);
+    }
   }, [installCmd]);
 
   return (
@@ -1899,10 +1982,10 @@ function QuickInstallSection() {
         className="max-w-4xl mx-auto relative z-10"
       >
         <div className="text-center mb-8">
-          <Badge variant="outline" className="border-owl-green/40 text-owl-green bg-owl-green/10 mb-4">
+          <Badge variant="outline" className="border-owl-green/60 text-owl-green bg-owl-green/15 mb-4">
             Get Started
           </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 heading-glow">
             <span className="bg-gradient-to-r from-owl-green to-owl-cyan bg-clip-text text-transparent">
               Quick Install
             </span>
@@ -1919,7 +2002,7 @@ function QuickInstallSection() {
                 <div className="w-3 h-3 rounded-full bg-red-500/60" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
                 <div className="w-3 h-3 rounded-full bg-green-500/60" />
-                <span className="text-xs text-foreground/70 ml-2 font-mono">bash</span>
+                <span className="text-xs text-foreground/80 ml-2 font-mono">bash</span>
               </div>
               <button
                 onClick={handleCopy}
@@ -1962,13 +2045,13 @@ function QuickInstallSection() {
           ].map((opt) => (
             <div key={opt.flag} className="glass p-3 text-center">
               <code className="text-sm font-mono text-owl-cyan">{opt.flag}</code>
-              <p className="text-xs text-foreground/70 mt-1">{opt.desc}</p>
+              <p className="text-xs text-foreground/80 mt-1">{opt.desc}</p>
             </div>
           ))}
         </div>
 
         <div className="glass-subtle p-4 mt-6 rounded-xl">
-          <p className="text-xs text-foreground/70 mb-2 font-semibold">More install options:</p>
+          <p className="text-xs text-foreground/80 mb-2 font-semibold">More install options:</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
               { flag: "--upgrade", desc: "Upgrade existing" },
@@ -2049,10 +2132,10 @@ function FeatureMatrixSection() {
         className="max-w-6xl mx-auto"
       >
         <div className="text-center mb-12">
-          <Badge variant="outline" className="border-owl-cyan/40 text-owl-cyan bg-owl-cyan/10 mb-4">
+          <Badge variant="outline" className="border-owl-cyan/60 text-owl-cyan bg-owl-cyan/15 mb-4">
             Comparison
           </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 heading-glow">
             <span className="bg-gradient-to-r from-owl-cyan to-owl-magenta bg-clip-text text-transparent">
               Feature Matrix
             </span>
@@ -2130,7 +2213,7 @@ function FeatureMatrixSection() {
                       {s.latency}
                     </span>
                   </td>
-                  <td className="text-sm text-foreground/70 p-3">{s.cost}</td>
+                  <td className="text-sm text-foreground/80 p-3">{s.cost}</td>
                 </tr>
               ))}
             </tbody>
@@ -2178,7 +2261,7 @@ function KnownIssuesSection() {
           <Badge variant="outline" className="border-yellow-400/40 text-yellow-400 bg-yellow-400/10 mb-4">
             Transparency
           </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 heading-glow">
             <span className="bg-gradient-to-r from-yellow-400 to-owl-magenta bg-clip-text text-transparent">
               Known Issues
             </span>
@@ -2218,7 +2301,7 @@ function KnownIssuesSection() {
                     </Badge>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-foreground/80">{bug.desc}</p>
-                      <p className="text-xs text-foreground/70 mt-0.5">
+                      <p className="text-xs text-foreground/80 mt-0.5">
                         Fix: {bug.fix} • {bug.ver}
                       </p>
                     </div>
@@ -2257,14 +2340,14 @@ function KnownIssuesSection() {
                           ? "border-yellow-400/40 text-yellow-400 bg-yellow-400/10"
                           : issue.status === "Known"
                             ? "border-owl-magenta/40 text-owl-magenta bg-owl-magenta/10"
-                            : "border-foreground/40 text-foreground/70 bg-foreground/10"
+                            : "border-foreground/40 text-foreground/80 bg-foreground/10"
                       }`}
                     >
                       {issue.status}
                     </Badge>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-foreground/80">{issue.desc}</p>
-                      <p className="text-xs text-foreground/70 mt-0.5">
+                      <p className="text-xs text-foreground/80 mt-0.5">
                         Workaround: {issue.workaround}
                       </p>
                     </div>
@@ -2328,7 +2411,7 @@ function Footer() {
               <span className="text-xl">🦉</span>
               <span className="text-lg font-bold text-owl-cyan">OWL-ORCA</span>
             </div>
-            <p className="text-sm text-foreground/70 leading-relaxed">
+            <p className="text-sm text-foreground/80 leading-relaxed">
               Self-hosted AI gateway that aggregates free-tier providers into a single
               OpenAI-compatible API endpoint. Free AI for everyone.
             </p>
@@ -2341,7 +2424,7 @@ function Footer() {
                 href="https://github.com/marktantongco/owl-orca-v3"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-foreground/70 hover:text-owl-cyan transition-colors"
+                className="flex items-center gap-2 text-sm text-foreground/80 hover:text-owl-cyan transition-colors"
                 aria-label="GitHub Repository"
               >
                 <GithubIcon className="w-3.5 h-3.5" />
@@ -2351,7 +2434,7 @@ function Footer() {
                 href="https://github.com/marktantongco/owl-orca/blob/main/LICENSE"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-foreground/70 hover:text-owl-cyan transition-colors"
+                className="flex items-center gap-2 text-sm text-foreground/80 hover:text-owl-cyan transition-colors"
                 aria-label="MIT License"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -2361,7 +2444,7 @@ function Footer() {
                 href="https://github.com/marktantongco/owl-orca/issues"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-foreground/70 hover:text-owl-cyan transition-colors"
+                className="flex items-center gap-2 text-sm text-foreground/80 hover:text-owl-cyan transition-colors"
                 aria-label="Report an Issue"
               >
                 <Bug className="w-3.5 h-3.5" />
@@ -2377,7 +2460,7 @@ function Footer() {
                 <a
                   key={item.href}
                   href={item.href}
-                  className="block text-sm text-foreground/70 hover:text-owl-cyan transition-colors"
+                  className="block text-sm text-foreground/80 hover:text-owl-cyan transition-colors"
                 >
                   {item.label}
                 </a>
@@ -2421,35 +2504,61 @@ function Footer() {
    ──────────────────────────────────────────── */
 export default function HomePage() {
   return (
-    <ErrorBoundary>
+    <ErrorBoundary sectionName="Root">
       <div className="min-h-screen flex flex-col animated-gradient-bg">
         <NavBar />
         <main role="main" className="flex-1">
-          <HeroSection />
+          <ErrorBoundary sectionName="Hero">
+            <HeroSection />
+          </ErrorBoundary>
           <SectionSeparator />
-          <ArchitectureSection />
+          <ErrorBoundary sectionName="Architecture">
+            <ArchitectureSection />
+          </ErrorBoundary>
           <SectionSeparator color="owl-cyan" />
-          <StreamRacerSection />
+          <ErrorBoundary sectionName="StreamRacer">
+            <StreamRacerSection />
+          </ErrorBoundary>
           <SectionSeparator color="owl-magenta" />
-          <FeaturesSection />
+          <ErrorBoundary sectionName="Features">
+            <FeaturesSection />
+          </ErrorBoundary>
           <SectionSeparator color="owl-magenta" />
-          <CircuitBreakerDemo />
+          <ErrorBoundary sectionName="CircuitBreaker">
+            <CircuitBreakerDemo />
+          </ErrorBoundary>
           <SectionSeparator color="owl-green" />
-          <ProtocolTranslationDemo />
+          <ErrorBoundary sectionName="ProtocolTranslation">
+            <ProtocolTranslationDemo />
+          </ErrorBoundary>
           <SectionSeparator color="owl-cyan" />
-          <ProxyEcosystemSection />
+          <ErrorBoundary sectionName="ProxyEcosystem">
+            <ProxyEcosystemSection />
+          </ErrorBoundary>
           <SectionSeparator color="owl-amber" />
-          <MemoryBudgetSection />
+          <ErrorBoundary sectionName="MemoryBudget">
+            <MemoryBudgetSection />
+          </ErrorBoundary>
           <SectionSeparator color="owl-green" />
-          <InfographicSection />
+          <ErrorBoundary sectionName="Infographic">
+            <InfographicSection />
+          </ErrorBoundary>
           <SectionSeparator color="owl-green" />
-          <TimelineSection />
+          <ErrorBoundary sectionName="Timeline">
+            <TimelineSection />
+          </ErrorBoundary>
           <SectionSeparator color="owl-cyan" />
-          <QuickInstallSection />
+          <ErrorBoundary sectionName="QuickInstall">
+            <QuickInstallSection />
+          </ErrorBoundary>
           <SectionSeparator color="owl-cyan" />
-          <FeatureMatrixSection />
+          <ErrorBoundary sectionName="FeatureMatrix">
+            <FeatureMatrixSection />
+          </ErrorBoundary>
           <SectionSeparator color="owl-amber" />
-          <KnownIssuesSection />
+          <ErrorBoundary sectionName="KnownIssues">
+            <KnownIssuesSection />
+          </ErrorBoundary>
         </main>
         <Footer />
         <ScrollToTopButton />

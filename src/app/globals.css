@@ -69,12 +69,12 @@
   --secondary: #1a1a3e;
   --secondary-foreground: #f0f0ff;
   --muted: #1a1a3e;
-  --muted-foreground: #b0b0d0;
+  --muted-foreground: #c8c8e0;
   --accent: #10b981;
   --accent-foreground: #0a0a1a;
   --destructive: #ef4444;
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.12);
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.16);
   --ring: #00d4ff;
   --chart-1: #00d4ff;
   --chart-2: #10b981;
@@ -272,39 +272,39 @@
 
 /* Glass morphism */
 .glass {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
 }
 
 .glass-strong {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.10);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.20);
   border-radius: 16px;
 }
 
 .glass-subtle {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 12px;
 }
 
 .glass-depth {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 16px;
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.4),
     0 2px 8px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
 /* Glow effects */
@@ -383,19 +383,50 @@
 
 /* Vivid icon - enhanced brightness and glow */
 .vivid-icon {
-  filter: brightness(1.3) drop-shadow(0 0 6px currentColor);
+  filter: brightness(1.4) drop-shadow(0 0 8px currentColor);
+}
+
+/* High-contrast icon container */
+.icon-container {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  border-radius: 12px;
+}
+
+/* High-contrast text for dark backgrounds */
+.text-vivid {
+  color: rgba(240, 240, 255, 0.95);
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 /* Vivid text - text glow effect */
 .vivid-text {
-  text-shadow: 0 0 12px currentColor;
+  text-shadow: 0 0 12px currentColor, 0 0 2px currentColor;
+}
+
+/* Section heading text shadow */
+.heading-glow {
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.15), 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* Proxy comparison card */
 .proxy-card {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.22);
   border-radius: 16px;
+}
+
+/* Enhanced glass depth for better readability */
+.glass-depth-enhanced {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
 /* Circuit breaker states */
