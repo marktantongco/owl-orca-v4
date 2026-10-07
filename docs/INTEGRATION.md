@@ -1,6 +1,6 @@
 # OWL-ORCA v4 — Companion Repo Integration Plan
 
-Two sibling repos close OWL-ORCA v4's last-mile gaps — **monetization** and **edge defense** — without touching the routing core (radix matching, stream racing, circuit breakers, protocol translation).
+Five companion repos extend OWL-ORCA v4 into a complete product surface — **monetization**, **edge defense**, **live web data**, **documentation**, and **deployment automation** — without touching the routing core (radix matching, stream racing, circuit breakers, protocol translation).
 
 ## Synergy Overview
 
@@ -8,6 +8,9 @@ Two sibling repos close OWL-ORCA v4's last-mile gaps — **monetization** and **
 |---|------|------|---------|----------------|
 | 1 | [marktantongco/owl-forward-proxy](https://github.com/marktantongco/owl-forward-proxy) | Billing & Monetization (v4.4 — modular proxy with billing sidecar) | **High** | Orca v4 routes intelligently but never charges: no per-user auth, no tier rate limits, no usage ledger |
 | 2 | [marktantongco/owl-agent-proxy](https://github.com/marktantongco/owl-agent-proxy) | Security & Defense (v3.0 — multi-protocol HTTP defense stack) | **High** | Circuit breakers guard *upstream* provider failures; nothing guards *downstream* threats (DDoS, HTTP exploits, prompt injection) |
+| 3 | [marktantongco/owl-agent](https://github.com/marktantongco/owl-agent) | RAG & Scraping Engine (Unified Proxy Ecosystem Builder) | **Medium-High** | No live-web path exists in the pipeline — real-time RAG stops at the training cutoff |
+| 4 | [marktantongco/owl-orca-ai-agentic-stack](https://github.com/marktantongco/owl-orca-ai-agentic-stack) | Documentation & Knowledge Base (interactive wiki) | **Medium (non-code)** | Production readiness needs one knowledge base: onboarding, API reference, troubleshooting — strictly v4 |
+| 5 | [marktantongco/kiro-owl-agent](https://github.com/marktantongco/kiro-owl-agent) + [marktantongco/owl-agent-installer](https://github.com/marktantongco/owl-agent-installer) | Deployment Automation (AWS Builder ID installer + general installer) | **Operational (Medium)** | Provisioning v4, defense, and billing means running separate installers by hand — deployment logic lives in two repos instead of one command |
 
 ## Target Architecture
 
@@ -46,9 +49,20 @@ Two sibling repos close OWL-ORCA v4's last-mile gaps — **monetization** and **
 2. Forward proxy authenticates the caller, checks tier quota, and records the request in the billing sidecar (pre-flight metering).
 3. Traffic passes to **owl-agent-proxy**: SHA-256 cache lookup → in-flight dedup → per-domain token-bucket rate limit → tier-sorted proxy rotation → protocol router (http/1.1 → escalate only when justified).
 4. Scrubbed request reaches **Orca v4**: radix route match → circuit-breaker gate → strategy selection (race / canary / fallback).
-5. Stream racing fires eligible providers; first byte wins; SSE translation streams back chunk-by-chunk.
-6. The billing sidecar meters the response (tokens, stream time) post-flight.
-7. Circuit/token state is recorded for the next request.
+5. *On demand*: if the model requests real-time web data, Orca v4 invokes the **owl-agent** tool/internal API; the scraping engine returns extracted content as RAG context.
+6. Stream racing fires eligible providers; first byte wins; SSE translation streams back chunk-by-chunk.
+7. The billing sidecar meters the response (tokens, stream time) post-flight.
+8. Circuit/token state is recorded for the next request.
+
+**On-demand branch (tool call):**
+
+```
+                     Orca v4 ──── tool call / internal API ────▶ owl-agent
+                          ◀───── extracted web data (RAG) ──────  (scraping /
+                                                                 extraction)
+```
+
+The knowledge base (repo 4) and the Production Deployer (repo 5) live outside the request path.
 
 ## Integration Options
 
@@ -79,6 +93,32 @@ Extract the billing sidecar and the defense handlers as pipeline stages inside O
 - **Pros:** no extra hops, no extra service processes — stages share the router's event loop and memory allowance.
 - **Cons:** requires touching the v4 pipeline; the two codebases must be reconciled (both are Python 3.10+ asyncio, which keeps this realistic).
 
+## Additional Companion Repos (3–5)
+
+### 3. owl-agent — RAG & Scraping Engine (Medium-High)
+
+[marktantongco/owl-agent](https://github.com/marktantongco/owl-agent) is the *Unified Proxy Ecosystem Builder* — interactive proxy builder with synergy scoring, compatibility matrix, architecture schematic, and its own installer. Its scraping/data-extraction components become Orca v4's **live-web tool**.
+
+- **Integration — Tool/Function-Calling module:** register the scraper as a callable tool inside the Orca v4 pipeline. When a model routed through Orca needs real-time web data, it emits a tool call; Orca invokes the scraping engine and streams extracted content back as RAG context.
+- **Integration — Internal API endpoint:** extract the scraping components behind an internal HTTP endpoint that Orca v4 queries during a request (pre-flight context fetch) — the router treats it like any other upstream.
+- **Placement:** on-demand only, so it adds no fixed memory footprint; keep it behind the same edge auth as the rest of the pipeline, and gate it behind the circuit-breaker registry like a provider so a dead scraper degrades gracefully instead of hanging the race.
+
+### 4. owl-orca-ai-agentic-stack — Documentation & Knowledge Base (Medium, non-code)
+
+[marktantongco/owl-orca-ai-agentic-stack](https://github.com/marktantongco/owl-orca-ai-agentic-stack) is the interactive *Knowledge Base & Wiki*. There is no code to merge — **the documentation must be merged**.
+
+- Adopt it as the **official documentation site for owl-orca-v4**.
+- Rewrite its content to **strictly reflect v4 architecture**: request flow (billing → defense → router → providers), ports (60000/60001/8333), middleware order, routing strategies, circuit-breaker semantics, install pipeline, and troubleshooting runbooks.
+- Treat docs as part of the change: every v4 architecture PR updates the knowledge base in the same change, so onboarding, API reference, and troubleshooting never drift from reality.
+
+### 5. kiro-owl-agent + owl-agent-installer — Deployment Automation (Operational, Medium)
+
+[marktantongco/kiro-owl-agent](https://github.com/marktantongco/kiro-owl-agent) (one-command AWS Builder ID → drop-in Anthropic API installer) and [marktantongco/owl-agent-installer](https://github.com/marktantongco/owl-agent-installer) (general installer) hold the deployment logic. **Merge the logic, not the code.**
+
+- Build a unified **OWL-ORCA Production Deployer**: a single entrypoint that combines both installers and, in one command, provisions **owl-orca-v4**, sets up the **owl-agent-proxy defense stack**, and configures the **owl-forward-proxy billing sidecar**.
+- Keep both repos independently usable — the deployer orchestrates them (shared entrypoint, separate repos), so a user who only wants the Kiro path still runs `kiro-owl-agent` alone.
+- The deployer must re-run the existing idempotent 12-step install pipeline (swap guard, memory accounting, systemd units, health checks) and declare `MemoryMax` on every unit it creates.
+
 ## Memory Budget (8 GB constraint)
 
 | Deployment | Added processes | Added memory ceiling |
@@ -95,6 +135,9 @@ Option B is the safer fit for the 8 GB profile; if Option A is used, declare `Me
 2. **Phase 2 — Billing:** put owl-forward-proxy at the edge; run auth + metering in log-only mode; reconcile ledger entries against actual router traffic.
 3. **Phase 3 — Enforce:** turn on tier quotas and blocking rules.
 4. **Phase 4 — Merge (Option B):** extract both logics as v4 pipeline stages per the mapping table; delete the standalone hops; re-run `./install.sh --status` health checks.
+5. **Phase 5 — Knowledge base:** adopt owl-orca-ai-agentic-stack as the official docs site; rewrite content against v4 architecture; wire docs updates into every architecture change.
+6. **Phase 6 — RAG tool:** expose owl-agent as a tool module or internal API; run in observe-only (log-only) mode first, then enable live web data for models that request it.
+7. **Phase 7 — Production Deployer:** unify kiro-owl-agent + owl-agent-installer deployment logic into the one-command OWL-ORCA Production Deployer; validate on a clean 8 GB machine.
 
 ## Verification Checklist
 
@@ -105,9 +148,16 @@ Option B is the safer fit for the 8 GB profile; if Option A is used, declare `Me
 - [ ] Circuit breakers still open/halve/recover exactly as before (5 failures → 60 s → probe).
 - [ ] Stream racing still returns first-byte-wins with SSE translation intact.
 - [ ] Total service memory stays under the 768 MB ceiling (Option A: after adding the two units).
+- [ ] A model routed through Orca v4 can request live web data and receives scraped content end-to-end (owl-agent tool call or internal API), and a dead scraper fails open instead of hanging the race.
+- [ ] The knowledge base reflects v4 architecture exactly (routes, ports, middleware order) and is reachable as the official docs site.
+- [ ] One command provisions the full stack from a clean machine: owl-orca-v4 + owl-agent-proxy defense + owl-forward-proxy billing, with all health checks green.
 
 ## References
 
 - [owl-forward-proxy](https://github.com/marktantongco/owl-forward-proxy) — modular proxy with billing sidecar (`owl-agent-install/forward_proxy.py`, `config/`, `diagnose.sh`)
 - [owl-agent-proxy](https://github.com/marktantongco/owl-agent-proxy) — defense stack (`ResilientClient` pipeline, `proxy_defense.py`, tiered proxy pool)
+- [owl-agent](https://github.com/marktantongco/owl-agent) — unified proxy ecosystem builder; scraping/data-extraction components for the RAG tool
+- [owl-orca-ai-agentic-stack](https://github.com/marktantongco/owl-orca-ai-agentic-stack) — interactive knowledge base & wiki; official v4 documentation site
+- [kiro-owl-agent](https://github.com/marktantongco/kiro-owl-agent) — one-command AWS Builder ID installer; deployment logic for the Production Deployer
+- [owl-agent-installer](https://github.com/marktantongco/owl-agent-installer) — general installer; deployment logic for the Production Deployer
 - [README.md](../README.md) — OWL-ORCA architecture, install pipeline, and service management
