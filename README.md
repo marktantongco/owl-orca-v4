@@ -91,16 +91,19 @@ OWL-ORCA is a **self-hosted AI gateway** that aggregates free-tier AI providers 
 
 ## 🔗 Companion Repos & Integration
 
-Two sibling repos extend OWL-ORCA v4 into a complete product surface — without touching the routing core:
+Five sibling repos extend OWL-ORCA v4 into a complete product surface — without touching the routing core:
 
 | Repo | Role | Synergy | How it integrates |
 |------|------|---------|-------------------|
 | [owl-forward-proxy](https://github.com/marktantongco/owl-forward-proxy) | Billing & Monetization (v4.4, billing sidecar) | **High** | Chain in front of Orca v4 for auth, per-tier rate limits, and usage metering — or extract the billing sidecar as a v4 middleware stage |
 | [owl-agent-proxy](https://github.com/marktantongco/owl-agent-proxy) | Security & Defense (v3.0, multi-protocol HTTP defense) | **High** | Deploy as a shield directly before Orca v4 to cache, dedup, rate-limit, and sanitize traffic — or merge its defense handlers into the v4 pipeline ahead of racing |
+| [owl-agent](https://github.com/marktantongco/owl-agent) | RAG & Scraping Engine (Unified Proxy Ecosystem Builder) | **Medium-High** | Register the scraper as a tool/function-calling module in the Orca v4 pipeline, or expose its scraping components as an internal API endpoint Orca queries for live web data (RAG) |
+| [owl-orca-ai-agentic-stack](https://github.com/marktantongco/owl-orca-ai-agentic-stack) | Documentation & Knowledge Base (interactive wiki) | **Medium (non-code)** | Adopt as the official owl-orca-v4 documentation site; rewrite content to strictly reflect v4 architecture — onboarding, API reference, troubleshooting |
+| [kiro-owl-agent](https://github.com/marktantongco/kiro-owl-agent) + [owl-agent-installer](https://github.com/marktantongco/owl-agent-installer) | Deployment Automation (AWS Builder ID + general installer) | **Operational (Medium)** | Merge the *deployment logic* (not the code) into a unified OWL-ORCA Production Deployer: one command provisions Orca v4, the defense stack, and the billing sidecar |
 
-**Combined request flow:** `Client → owl-forward-proxy (auth · tiers · metering) → owl-agent-proxy (defense) → Orca v4 (routing) → AI Providers`
+**Combined request flow:** `Client → owl-forward-proxy (auth · tiers · metering) → owl-agent-proxy (defense) → Orca v4 (routing → owl-agent RAG tool on demand) → AI Providers`
 
-See **[docs/INTEGRATION.md](docs/INTEGRATION.md)** for the full architecture diagram, middleware stage mapping, memory-budget impact, rollout phases, and verification checklist.
+See **[docs/INTEGRATION.md](docs/INTEGRATION.md)** for the full architecture diagram, middleware stage mapping, per-repo integration plans, memory-budget impact, rollout phases, and verification checklist.
 
 ---
 

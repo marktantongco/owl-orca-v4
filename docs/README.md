@@ -48,6 +48,6 @@ docs/
 
 ## Key References
 
-- **INTEGRATION.md** — Companion repo integration plan: how `owl-forward-proxy` (billing & monetization) and `owl-agent-proxy` (security & defense) chain in front of Orca v4 or merge into its middleware pipeline, with rollout phases, memory-budget impact, and a verification checklist
+- **INTEGRATION.md** — Companion repo integration plan for all five sibling repos: `owl-forward-proxy` (billing & monetization) and `owl-agent-proxy` (security & defense) chained in front of Orca v4 or merged into its middleware pipeline, `owl-agent` (RAG & scraping) as a tool-call/internal-API module, `owl-orca-ai-agentic-stack` as the official v4 knowledge base, and `kiro-owl-agent` + `owl-agent-installer` unified into a one-command Production Deployer — with rollout phases, memory-budget impact, and a verification checklist
 - **OWL-ORCA_README.md** — The master README with ASCII architecture diagrams, feature matrix, StreamRacer flow, protocol translation table, circuit breaker states, and 12-step installation pipeline
 - **README-PROJECT.md** — Next.js web app project setup and development guide

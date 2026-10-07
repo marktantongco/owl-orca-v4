@@ -28,6 +28,9 @@ import {
   Cpu,
   RotateCcw,
   CreditCard,
+  Database,
+  BookOpen,
+  Rocket,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -1608,7 +1611,9 @@ function ProxyEcosystemSection() {
       version: "v4.4 — modular proxy with billing sidecar",
       url: "https://github.com/marktantongco/owl-forward-proxy",
       role: "Billing & Monetization",
-      color: "amber" as const,
+      icon: "billing" as const,
+      synergy: "High synergy",
+      hoverClass: "hover:border-owl-amber/40 hover:shadow-[0_0_24px_rgba(245,158,11,0.12)]",
       roleBadgeClass: "border-owl-amber/60 text-owl-amber bg-owl-amber/15",
       gap: "Orca v4 races providers and translates protocols — but it never charges anyone. No per-user auth, no tier quotas, and no usage ledger sit in front of the router.",
       adds: [
@@ -1620,13 +1625,16 @@ function ProxyEcosystemSection() {
         "Chain in front: clients hit owl-forward-proxy, which authenticates, meters, then forwards to Orca v4 — the routing core stays untouched.",
         "Extract the billing sidecar and mount it as a middleware stage inside the Orca v4 pipeline.",
       ],
+      optionLabels: ["Chain", "Merge"],
     },
     {
       repo: "owl-agent-proxy",
       version: "v3.0 — multi-protocol HTTP defense stack",
       url: "https://github.com/marktantongco/owl-agent-proxy",
       role: "Security & Defense",
-      color: "magenta" as const,
+      icon: "shield" as const,
+      synergy: "High synergy",
+      hoverClass: "hover:border-owl-magenta/40 hover:shadow-[0_0_24px_rgba(224,64,251,0.12)]",
       roleBadgeClass: "border-owl-magenta/60 text-owl-magenta bg-owl-magenta/15",
       gap: "Circuit breakers defend Orca v4 from upstream provider failures; nothing defends it from downstream threats — DDoS floods, HTTP exploits, and prompt-injection payloads.",
       adds: [
@@ -1638,6 +1646,70 @@ function ProxyEcosystemSection() {
         "Shield in front: deploy directly before Orca v4 so every request is scrubbed before radix matching and stream racing.",
         "Merge the defense handlers into the v4 pipeline ahead of racing and translation.",
       ],
+      optionLabels: ["Chain", "Merge"],
+    },
+    {
+      repo: "owl-agent",
+      version: "Unified Proxy Ecosystem Builder — synergy scoring, compatibility matrix, architecture schematic",
+      url: "https://github.com/marktantongco/owl-agent",
+      role: "RAG & Scraping Engine",
+      icon: "data" as const,
+      synergy: "Medium-High synergy",
+      hoverClass: "hover:border-owl-green/40 hover:shadow-[0_0_24px_rgba(16,185,129,0.12)]",
+      roleBadgeClass: "border-owl-green/60 text-owl-green bg-owl-green/15",
+      gap: "Models routed through Orca v4 can't reach the live web — no scraping or data-extraction path exists in the pipeline, so real-time RAG stops at the training cutoff.",
+      adds: [
+        "Tool/function-calling module: models request live web data mid-conversation through Orca v4",
+        "Scraping components exposed as an internal API endpoint the router queries during a request",
+        "Interactive builder with synergy scoring and a compatibility matrix for the proxy ecosystem",
+      ],
+      options: [
+        "Tool module: register the scraper as a callable tool inside the Orca v4 pipeline — when a model needs real-time web data, Orca invokes it and streams results back.",
+        "Internal API: extract the scraping components behind an endpoint that Orca v4 queries for RAG context before racing providers.",
+      ],
+      optionLabels: ["Tool", "API"],
+    },
+    {
+      repo: "owl-orca-ai-agentic-stack",
+      version: "Interactive Knowledge Base & Wiki — 10 sections, GSAP + Framer Motion",
+      url: "https://github.com/marktantongco/owl-orca-ai-agentic-stack",
+      role: "Documentation & Knowledge Base",
+      icon: "docs" as const,
+      synergy: "Medium · non-code",
+      hoverClass: "hover:border-owl-cyan/40 hover:shadow-[0_0_24px_rgba(0,212,255,0.12)]",
+      roleBadgeClass: "border-owl-cyan/60 text-owl-cyan bg-owl-cyan/15",
+      gap: "No code to merge — but production readiness needs one knowledge base: onboarding, API references, and troubleshooting that strictly reflect v4.",
+      adds: [
+        "Adopted as the official documentation site for owl-orca-v4",
+        "Content rewritten to strictly reflect v4 architecture (onboarding, API reference, troubleshooting)",
+        "A unified knowledge base — critical for production readiness and user support",
+      ],
+      options: [
+        "Adopt: make the wiki the official owl-orca-v4 docs site and rewrite its content against the v4 architecture.",
+        "Sync: land documentation updates in the same change as every v4 architecture update so the knowledge base never drifts.",
+      ],
+      optionLabels: ["Adopt", "Sync"],
+    },
+    {
+      repo: "kiro-owl-agent + owl-agent-installer",
+      version: "AWS Builder ID installer + general installer — deployment logic",
+      url: "https://github.com/marktantongco/kiro-owl-agent",
+      role: "Deployment Automation",
+      icon: "deploy" as const,
+      synergy: "Operational · medium",
+      hoverClass: "hover:border-owl-amber/40 hover:shadow-[0_0_24px_rgba(245,158,11,0.12)]",
+      roleBadgeClass: "border-owl-amber/60 text-owl-amber bg-owl-amber/15",
+      gap: "Provisioning v4, the defense stack, and the billing sidecar today means running separate installers by hand — deployment logic lives in two repos instead of one command.",
+      adds: [
+        "One OWL-ORCA Production Deployer combining both installers' deployment logic",
+        "One command provisions owl-orca-v4, the owl-agent-proxy defense stack, and the owl-forward-proxy billing sidecar",
+        "AWS Builder ID path (kiro-owl-agent) and general path (owl-agent-installer) stay independently usable",
+      ],
+      options: [
+        "Merge the deployment logic: a single Production Deployer script that provisions Orca v4, owl-agent-proxy, and owl-forward-proxy in one command.",
+        "Shared entrypoint, separate repos: keep both installers intact and let the unified script orchestrate them.",
+      ],
+      optionLabels: ["One-command", "Orchestrated"],
     },
   ], []);
 
@@ -1669,7 +1741,7 @@ function ProxyEcosystemSection() {
             </span>
           </h2>
           <p className="text-foreground/90 max-w-2xl mx-auto">
-            Companion repos that plug into Orca v4 — billing at the edge, defense before the router — plus how proxy architecture connects to psychology, economics, biology, and history. And a competitive analysis.
+            Companion repos that plug into Orca v4 — billing, defense, live web data, docs, and deploys — plus how proxy architecture connects to psychology, economics, biology, and history. And a competitive analysis.
           </p>
         </div>
 
@@ -1679,26 +1751,28 @@ function ProxyEcosystemSection() {
             Companion Repos for Orca v4
           </h3>
           <p className="text-sm text-foreground/80 text-center max-w-2xl mx-auto mb-8">
-            OWL-ORCA v4 owns intelligent routing — these two sibling repos supply the layers it deliberately doesn&apos;t: monetization at the edge and defense underneath it.
+            OWL-ORCA v4 owns intelligent routing — these sibling repos supply the layers it deliberately doesn&apos;t: billing at the edge, defense underneath it, live web data on demand, a v4 knowledge base, and one-command deploys.
           </p>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">
             {companionRepos.map((r) => (
               <motion.div
                 key={r.repo}
                 whileHover={{ scale: 1.01 }}
-                className={`glass-depth p-6 flex flex-col ${
-                  r.color === "amber"
-                    ? "hover:border-owl-amber/40 hover:shadow-[0_0_24px_rgba(245,158,11,0.12)]"
-                    : "hover:border-owl-magenta/40 hover:shadow-[0_0_24px_rgba(224,64,251,0.12)]"
-                }`}
+                className={`glass-depth p-6 flex flex-col ${r.hoverClass}`}
               >
                 <div className="flex items-start justify-between gap-3 flex-wrap mb-3">
                   <div className="flex items-center gap-2 min-w-0">
-                    {r.color === "amber" ? (
+                    {r.icon === "billing" ? (
                       <CreditCard className="w-5 h-5 text-owl-amber vivid-icon shrink-0" />
-                    ) : (
+                    ) : r.icon === "shield" ? (
                       <Shield className="w-5 h-5 text-owl-magenta vivid-icon shrink-0" />
+                    ) : r.icon === "data" ? (
+                      <Database className="w-5 h-5 text-owl-green vivid-icon shrink-0" />
+                    ) : r.icon === "docs" ? (
+                      <BookOpen className="w-5 h-5 text-owl-cyan vivid-icon shrink-0" />
+                    ) : (
+                      <Rocket className="w-5 h-5 text-owl-amber vivid-icon shrink-0" />
                     )}
                     <span className="font-mono text-sm font-bold text-vivid truncate">{r.repo}</span>
                     <a
@@ -1714,7 +1788,7 @@ function ProxyEcosystemSection() {
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className={r.roleBadgeClass}>{r.role}</Badge>
                     <Badge variant="outline" className="border-owl-green/60 text-owl-green bg-owl-green/15">
-                      High synergy
+                      {r.synergy}
                     </Badge>
                   </div>
                 </div>
@@ -1746,7 +1820,7 @@ function ProxyEcosystemSection() {
                               : "border-owl-cyan/50 text-owl-cyan bg-owl-cyan/10"
                           }`}
                         >
-                          {i === 0 ? "Chain" : "Merge"}
+                          {r.optionLabels[i]}
                         </Badge>
                         <p className="text-sm text-foreground/85">{o}</p>
                       </li>
@@ -1781,6 +1855,9 @@ function ProxyEcosystemSection() {
                 </div>
               ))}
             </div>
+            <p className="text-xs text-foreground/60 text-center mt-4">
+              On demand: Orca v4 queries <span className="font-mono text-foreground/80">owl-agent</span> for live web data (RAG). The knowledge base and Production Deployer live outside the request path.
+            </p>
           </div>
         </div>
 
