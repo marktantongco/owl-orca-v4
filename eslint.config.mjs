@@ -13,6 +13,14 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // Test-only code: the next/image stub must render a plain <img>, and test
+  // files intentionally use raw DOM/query APIs rather than Next.js patterns.
+  {
+    files: ["tests/**"],
+    rules: {
+      "@next/next/no-img-element": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
