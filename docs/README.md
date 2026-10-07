@@ -7,6 +7,7 @@ This directory contains the full documentation archive for the OWL-ORCA project,
 ```
 docs/
 ├── README.md                          ← This index file
+├── INTEGRATION.md                     ← Companion repo integration plan (billing + defense)
 ├── assets/
 │   ├── OWL-ORCA_README.md             ← Comprehensive project README (schematics, matrix, timeline)
 │   ├── OWL-ORCA_Download_README.md    ← Original download directory README
@@ -47,5 +48,6 @@ docs/
 
 ## Key References
 
+- **INTEGRATION.md** — Companion repo integration plan: how `owl-forward-proxy` (billing & monetization) and `owl-agent-proxy` (security & defense) chain in front of Orca v4 or merge into its middleware pipeline, with rollout phases, memory-budget impact, and a verification checklist
 - **OWL-ORCA_README.md** — The master README with ASCII architecture diagrams, feature matrix, StreamRacer flow, protocol translation table, circuit breaker states, and 12-step installation pipeline
 - **README-PROJECT.md** — Next.js web app project setup and development guide

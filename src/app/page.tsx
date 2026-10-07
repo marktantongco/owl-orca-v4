@@ -27,6 +27,7 @@ import {
   ArrowUp,
   Cpu,
   RotateCcw,
+  CreditCard,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -1601,6 +1602,53 @@ function ProxyEcosystemSection() {
     },
   ], []);
 
+  const companionRepos = useMemo(() => [
+    {
+      repo: "owl-forward-proxy",
+      version: "v4.4 — modular proxy with billing sidecar",
+      url: "https://github.com/marktantongco/owl-forward-proxy",
+      role: "Billing & Monetization",
+      color: "amber" as const,
+      roleBadgeClass: "border-owl-amber/60 text-owl-amber bg-owl-amber/15",
+      gap: "Orca v4 races providers and translates protocols — but it never charges anyone. No per-user auth, no tier quotas, and no usage ledger sit in front of the router.",
+      adds: [
+        "Edge authentication — requests are identified and logged before they touch routing",
+        "Per-tier rate limiting so free, pro, and team quotas are actually enforceable",
+        "Billing sidecar meters usage (requests, tokens, stream-time) as traffic flows through",
+      ],
+      options: [
+        "Chain in front: clients hit owl-forward-proxy, which authenticates, meters, then forwards to Orca v4 — the routing core stays untouched.",
+        "Extract the billing sidecar and mount it as a middleware stage inside the Orca v4 pipeline.",
+      ],
+    },
+    {
+      repo: "owl-agent-proxy",
+      version: "v3.0 — multi-protocol HTTP defense stack",
+      url: "https://github.com/marktantongco/owl-agent-proxy",
+      role: "Security & Defense",
+      color: "magenta" as const,
+      roleBadgeClass: "border-owl-magenta/60 text-owl-magenta bg-owl-magenta/15",
+      gap: "Circuit breakers defend Orca v4 from upstream provider failures; nothing defends it from downstream threats — DDoS floods, HTTP exploits, and prompt-injection payloads.",
+      adds: [
+        "Multi-protocol HTTP defense: cache → dedup → rate limit → proxy rotate → protocol router",
+        "Per-domain token buckets with tier-sorted proxy rotation and auto-ban on 3 failures",
+        "Sanitized traffic only — poisoned payloads never consume AI routing resources",
+      ],
+      options: [
+        "Shield in front: deploy directly before Orca v4 so every request is scrubbed before radix matching and stream racing.",
+        "Merge the defense handlers into the v4 pipeline ahead of racing and translation.",
+      ],
+    },
+  ], []);
+
+  const synergyFlow = useMemo(() => [
+    { label: "Client", sub: "IDE · CLI · app", colorClass: "text-foreground/90" },
+    { label: "owl-forward-proxy", sub: "Auth · tiers · usage metering", colorClass: "text-owl-amber" },
+    { label: "owl-agent-proxy", sub: "Cache · dedup · rate limit · defense", colorClass: "text-owl-magenta" },
+    { label: "Orca v4", sub: "Radix routing · racing · circuits", colorClass: "text-owl-cyan" },
+    { label: "AI Providers", sub: "Copilot · Antigravity · Kiro", colorClass: "text-owl-green" },
+  ], []);
+
   return (
     <section id="ecosystem" ref={ref} className="relative py-20 sm:py-28 px-4 scroll-mt-20">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_30%,rgba(0,212,255,0.03)_0%,transparent_60%)] pointer-events-none" />
@@ -1621,8 +1669,119 @@ function ProxyEcosystemSection() {
             </span>
           </h2>
           <p className="text-foreground/90 max-w-2xl mx-auto">
-            OWL-ORCA in context — how proxy architecture connects to psychology, economics, biology, and history. Plus a competitive analysis.
+            Companion repos that plug into Orca v4 — billing at the edge, defense before the router — plus how proxy architecture connects to psychology, economics, biology, and history. And a competitive analysis.
           </p>
+        </div>
+
+        {/* Companion repos & integration */}
+        <div className="mb-14">
+          <h3 className="text-xl font-bold text-center mb-2 text-foreground/90 heading-glow">
+            Companion Repos for Orca v4
+          </h3>
+          <p className="text-sm text-foreground/80 text-center max-w-2xl mx-auto mb-8">
+            OWL-ORCA v4 owns intelligent routing — these two sibling repos supply the layers it deliberately doesn&apos;t: monetization at the edge and defense underneath it.
+          </p>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+            {companionRepos.map((r) => (
+              <motion.div
+                key={r.repo}
+                whileHover={{ scale: 1.01 }}
+                className={`glass-depth p-6 flex flex-col ${
+                  r.color === "amber"
+                    ? "hover:border-owl-amber/40 hover:shadow-[0_0_24px_rgba(245,158,11,0.12)]"
+                    : "hover:border-owl-magenta/40 hover:shadow-[0_0_24px_rgba(224,64,251,0.12)]"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3 flex-wrap mb-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    {r.color === "amber" ? (
+                      <CreditCard className="w-5 h-5 text-owl-amber vivid-icon shrink-0" />
+                    ) : (
+                      <Shield className="w-5 h-5 text-owl-magenta vivid-icon shrink-0" />
+                    )}
+                    <span className="font-mono text-sm font-bold text-vivid truncate">{r.repo}</span>
+                    <a
+                      href={r.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-foreground/60 hover:text-owl-cyan transition-colors"
+                      aria-label={`Open ${r.repo} on GitHub`}
+                    >
+                      <GithubIcon className="w-4 h-4" />
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className={r.roleBadgeClass}>{r.role}</Badge>
+                    <Badge variant="outline" className="border-owl-green/60 text-owl-green bg-owl-green/15">
+                      High synergy
+                    </Badge>
+                  </div>
+                </div>
+
+                <p className="text-xs text-foreground/60 font-medium mb-3">{r.version}</p>
+                <p className="text-sm text-foreground/85 mb-4">{r.gap}</p>
+
+                <div className="space-y-2 mb-4">
+                  {r.adds.map((a) => (
+                    <div key={a} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-owl-cyan shrink-0 mt-0.5" />
+                      <p className="text-sm text-owl-cyan/90">{a}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-t border-white/10 pt-3 mt-auto">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground/70 mb-2">
+                    How to integrate
+                  </p>
+                  <ol className="space-y-2">
+                    {r.options.map((o, i) => (
+                      <li key={o} className="flex items-start gap-2">
+                        <Badge
+                          variant="outline"
+                          className={`shrink-0 text-xs ${
+                            i === 0
+                              ? r.roleBadgeClass
+                              : "border-owl-cyan/50 text-owl-cyan bg-owl-cyan/10"
+                          }`}
+                        >
+                          {i === 0 ? "Chain" : "Merge"}
+                        </Badge>
+                        <p className="text-sm text-foreground/85">{o}</p>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Integrated request flow */}
+          <div className="proxy-card p-5 sm:p-6">
+            <h4 className="text-base font-bold text-foreground/80 mb-1 text-center">
+              Integrated request flow
+            </h4>
+            <p className="text-xs text-foreground/60 text-center mb-5">
+              Option A: chained deployment — Option B mounts the same stages as middleware inside Orca v4
+            </p>
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2 lg:gap-3">
+              {synergyFlow.map((stage, i) => (
+                <div
+                  key={stage.label}
+                  className="flex flex-row lg:flex-col items-center gap-2 lg:gap-3 w-full lg:flex-1"
+                >
+                  {i > 0 && (
+                    <ArrowRight className="w-4 h-4 text-foreground/50 shrink-0 rotate-90 lg:rotate-0" />
+                  )}
+                  <div className="flex-1 lg:w-full text-center px-3 py-3 rounded-xl border border-white/10 bg-[#0a0a1a]/60">
+                    <p className={`text-sm font-bold ${stage.colorClass}`}>{stage.label}</p>
+                    <p className="text-xs text-foreground/70 mt-1">{stage.sub}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Cross-field insights */}

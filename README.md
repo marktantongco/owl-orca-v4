@@ -89,6 +89,21 @@ OWL-ORCA is a **self-hosted AI gateway** that aggregates free-tier AI providers 
 
 ---
 
+## 🔗 Companion Repos & Integration
+
+Two sibling repos extend OWL-ORCA v4 into a complete product surface — without touching the routing core:
+
+| Repo | Role | Synergy | How it integrates |
+|------|------|---------|-------------------|
+| [owl-forward-proxy](https://github.com/marktantongco/owl-forward-proxy) | Billing & Monetization (v4.4, billing sidecar) | **High** | Chain in front of Orca v4 for auth, per-tier rate limits, and usage metering — or extract the billing sidecar as a v4 middleware stage |
+| [owl-agent-proxy](https://github.com/marktantongco/owl-agent-proxy) | Security & Defense (v3.0, multi-protocol HTTP defense) | **High** | Deploy as a shield directly before Orca v4 to cache, dedup, rate-limit, and sanitize traffic — or merge its defense handlers into the v4 pipeline ahead of racing |
+
+**Combined request flow:** `Client → owl-forward-proxy (auth · tiers · metering) → owl-agent-proxy (defense) → Orca v4 (routing) → AI Providers`
+
+See **[docs/INTEGRATION.md](docs/INTEGRATION.md)** for the full architecture diagram, middleware stage mapping, memory-budget impact, rollout phases, and verification checklist.
+
+---
+
 ## 🏁 StreamRacer: First Byte Wins
 
 The **StreamRacer** is the heart of OWL-ORCA's latency optimization. When a request arrives at the Orca Router with the `race` strategy, it simultaneously fires the request to ALL eligible providers. The provider that returns the first translated SSE chunk wins the race — all other streams are immediately cancelled.
