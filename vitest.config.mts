@@ -1,9 +1,11 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react";
 
+// JSX/TSX in tests is transformed by Vite's built-in transform — the
+// @vitejs/plugin-react babel pipeline is deliberately not used (it caused
+// an npm ERESOLVE conflict on Vercel between @babel/core 7 and 8 in the
+// shadcn toolchain).
 export default defineConfig({
-  plugins: [react()],
   resolve: {
     alias: {
       "next/image": fileURLToPath(
