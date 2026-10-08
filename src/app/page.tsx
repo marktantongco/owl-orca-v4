@@ -31,6 +31,7 @@ import {
   Database,
   BookOpen,
   Rocket,
+  Fingerprint,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -1712,6 +1713,27 @@ function ProxyEcosystemSection() {
       optionLabels: ["One-command", "Orchestrated"],
     },
     {
+      repo: "hermes-disguise",
+      version: "Browser TLS fingerprint + proxy rotation — disguise kit and stealth layer",
+      url: "https://github.com/marktantongco/hermes-disguise",
+      role: "Stealth & Fingerprinting",
+      icon: "disguise" as const,
+      synergy: "High synergy",
+      hoverClass: "hover:border-owl-cyan/40 hover:shadow-[0_0_24px_rgba(0,212,255,0.12)]",
+      roleBadgeClass: "border-owl-cyan/60 text-owl-cyan bg-owl-cyan/15",
+      gap: "Orca v4's outbound calls carry no disguise — a plain TLS posture that anti-bot systems can flag well before the request ever reaches a provider. Hermes supplies the browser-like fingerprint and rotation that keep the gateway looking like a normal client.",
+      adds: [
+        "Browser-shaped TLS fingerprint that blends outbound handshakes with real browser traffic to evade provider fingerprinting",
+        "Proxy rotation that swaps egress endpoints before a single source can be tied to Orca v4",
+        "Stealth layer that sits outside the router so every race inherits an untraceable client posture",
+      ],
+      options: [
+        "Chain as stealth layer: route Orca v4's outbound traffic through Hermes so every provider race is disguised and rotated before it leaves the host.",
+        "Merge the fingerprint module: mount Hermes' browser-like TLS shaping as a transport stage inside the v4 egress path.",
+      ],
+      optionLabels: ["Chain", "Merge"],
+    },
+    {
       repo: "freebuff-proxy",
       version: "Go gateway core — JA3 stealth transport, multi-token session pool, SOCKS5 proxy pool",
       url: "https://github.com/marktantongco/freebuff-proxy",
@@ -1864,6 +1886,8 @@ function ProxyEcosystemSection() {
                       <Terminal className="w-5 h-5 text-owl-cyan vivid-icon shrink-0" />
                     ) : r.icon === "tokens" ? (
                       <RotateCcw className="w-5 h-5 text-owl-amber vivid-icon shrink-0" />
+                    ) : r.icon === "disguise" ? (
+                      <Fingerprint className="w-5 h-5 text-owl-cyan vivid-icon shrink-0" />
                     ) : (
                       <Rocket className="w-5 h-5 text-owl-amber vivid-icon shrink-0" />
                     )}
@@ -1880,9 +1904,6 @@ function ProxyEcosystemSection() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className={r.roleBadgeClass}>{r.role}</Badge>
-                    <Badge variant="outline" className="border-owl-green/60 text-owl-green bg-owl-green/15">
-                      {r.synergy}
-                    </Badge>
                   </div>
                 </div>
 
@@ -1949,7 +1970,7 @@ function ProxyEcosystemSection() {
               ))}
             </div>
             <p className="text-xs text-foreground/60 text-center mt-4">
-              On demand: Orca v4 queries <span className="font-mono text-foreground/80">owl-agent</span> for live web data (RAG). Resilience sits beside the path — <span className="font-mono text-foreground/80">unified-owl</span> and <span className="font-mono text-foreground/80">owl-dns-synergy</span> fail over around blocked egress and poisoned DNS, while <span className="font-mono text-foreground/80">autoclaw-autologin</span> keeps GLM tokens rotating. The knowledge base and Production Deployer live outside the request path.
+              On demand: Orca v4 queries <span className="font-mono text-foreground/80">owl-agent</span> for live web data (RAG). Stealth rides with the request — <span className="font-mono text-foreground/80">hermes-disguise</span> disguises the outbound client and rotates its egress, while <span className="font-mono text-foreground/80">freebuff-proxy</span> keeps the provider sessions warm behind JA3-shaped TLS and rotating SOCKS5. Resilience sits beside the path — <span className="font-mono text-foreground/80">unified-owl</span> and <span className="font-mono text-foreground/80">owl-dns-synergy</span> fail over around blocked egress and poisoned DNS, and <span className="font-mono text-foreground/80">autoclaw-autologin</span> keeps GLM tokens rotating. The knowledge base and Production Deployer live outside the request path.
             </p>
           </div>
         </div>

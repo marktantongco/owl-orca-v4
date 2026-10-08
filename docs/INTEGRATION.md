@@ -1,6 +1,6 @@
 # OWL-ORCA v4 — Companion Repo Integration Plan
 
-Nine companion repos extend OWL-ORCA v4 into a complete product surface — **monetization**, **edge defense**, **stealth egress**, **resilient access & DNS**, **token-sourced providers**, **live web data**, **documentation**, and **deployment automation** — without touching the routing core (radix matching, stream racing, circuit breakers, protocol translation).
+Ten companion repos extend OWL-ORCA v4 into a complete product surface — **monetization**, **edge defense**, **stealth egress**, **resilient access & DNS**, **token-sourced providers**, **live web data**, **documentation**, and **deployment automation** — without touching the routing core (radix matching, stream racing, circuit breakers, protocol translation).
 
 ## Synergy Overview
 
@@ -11,10 +11,11 @@ Nine companion repos extend OWL-ORCA v4 into a complete product surface — **mo
 | 3 | [marktantongco/owl-agent](https://github.com/marktantongco/owl-agent) | RAG & Scraping Engine (Unified Proxy Ecosystem Builder) | **Medium-High** | No live-web path exists in the pipeline — real-time RAG stops at the training cutoff |
 | 4 | [marktantongco/owl-orca-ai-agentic-stack](https://github.com/marktantongco/owl-orca-ai-agentic-stack) | Documentation & Knowledge Base (interactive wiki) | **Medium (non-code)** | Production readiness needs one knowledge base: onboarding, API reference, troubleshooting — strictly v4 |
 | 5 | [marktantongco/kiro-owl-agent](https://github.com/marktantongco/kiro-owl-agent) + [marktantongco/owl-agent-installer](https://github.com/marktantongco/owl-agent-installer) | Deployment Automation (AWS Builder ID installer + general installer) | **Operational (Medium)** | Provisioning v4, defense, and billing means running separate installers by hand — deployment logic lives in two repos instead of one command |
-| 6 | [marktantongco/freebuff-proxy](https://github.com/marktantongco/freebuff-proxy) | Stealth & Session Layer (Go — JA3 stealth transport, multi-token session pool, SOCKS5 pool) | **High** | Orca v4's provider calls are fingerprintable and static — no JA3 shaping, no warm token sessions, no rotating egress, so anti-bot systems can identify and throttle every race |
-| 7 | [marktantongco/unified-owl](https://github.com/marktantongco/unified-owl) | Resilient Access & Routing (v1.1 — merged 6-repo engine: evasion · DNS tunneling · NadirClaw cost routing) | **Medium-High** | Racing has no evasion when a provider blocks egress, and no cost tiering — NadirClaw routes simple queries to cheap models and complex ones to premium (40-70% savings) |
-| 8 | [marktantongco/owl-dns-synergy](https://github.com/marktantongco/owl-dns-synergy) | DNS Resilience (v2.5 — dual-channel resiliency engine with AutoClaw synergy) | **Medium** | Blocked or poisoned DNS means unreachable providers — routing intelligence never engages; dual-channel resolution keeps upstream endpoints resolvable |
-| 9 | [marktantongco/autoclaw-autologin](https://github.com/marktantongco/autoclaw-autologin) | GLM Token Harvesting (v2.7 — OpenAI-compatible free proxy, OAuth harvesting + rotation) | **Medium** | No persistent free GLM source exists in the provider table — tokens expire and the provider drops out of the race; AutoClaw harvests and rotates them continuously |
+| 6 | [marktantongco/hermes-disguise](https://github.com/marktantongco/hermes-disguise) | Stealth & Fingerprinting (browser-like TLS fingerprint + proxy rotation) | **High** | Orca v4's outbound client posture is plainly identifiable before the request even leaves the host — no browser-shaped TLS fingerprint, no egress rotation, so anti-bot systems can flag the gateway itself, not just the provider calls |
+| 7 | [marktantongco/freebuff-proxy](https://github.com/marktantongco/freebuff-proxy) | Stealth & Session Layer (Go — JA3 stealth transport, multi-token session pool, SOCKS5 pool) | **High** | Orca v4's provider calls are fingerprintable and static — no JA3 shaping, no warm token sessions, no rotating egress, so anti-bot systems can identify and throttle every race |
+| 8 | [marktantongco/unified-owl](https://github.com/marktantongco/unified-owl) | Resilient Access & Routing (v1.1 — merged 6-repo engine: evasion · DNS tunneling · NadirClaw cost routing) | **Medium-High** | Racing has no evasion when a provider blocks egress, and no cost tiering — NadirClaw routes simple queries to cheap models and complex ones to premium (40-70% savings) |
+| 9 | [marktantongco/owl-dns-synergy](https://github.com/marktantongco/owl-dns-synergy) | DNS Resilience (v2.5 — dual-channel resiliency engine with AutoClaw synergy) | **Medium** | Blocked or poisoned DNS means unreachable providers — routing intelligence never engages; dual-channel resolution keeps upstream endpoints resolvable |
+| 10 | [marktantongco/autoclaw-autologin](https://github.com/marktantongco/autoclaw-autologin) | GLM Token Harvesting (v2.7 — OpenAI-compatible free proxy, OAuth harvesting + rotation) | **Medium** | No persistent free GLM source exists in the provider table — tokens expire and the provider drops out of the race; AutoClaw harvests and rotates them continuously |
 
 ## Target Architecture
 
@@ -73,7 +74,7 @@ Nine companion repos extend OWL-ORCA v4 into a complete product surface — **mo
 7. Stream racing fires eligible providers; first byte wins; SSE translation streams back chunk-by-chunk.
 8. If egress is blocked or DNS is poisoned, **unified-owl** (evasion · NadirClaw cost routing) and **owl-dns-synergy** (dual-channel DNS) take the failover path; **autoclaw-autologin** supplies the GLM provider with freshly rotated OAuth tokens.
 9. The billing sidecar meters the response (tokens, stream time) post-flight.
-10. Circuit/token state is recorded for the next request.
+10. If egress is blocked or DNS is poisoned, **hermes-disguise** re-shapeshifts the client TLS posture and rotates the egress endpoint so the retry leaves the host looking like a fresh client; **unified-owl** (evasion · NadirClaw cost routing) and **owl-dns-synergy** (dual-channel DNS) take the failover path; **autoclaw-autologin** supplies the GLM provider
 
 **On-demand branch (tool call):**
 
@@ -140,17 +141,25 @@ Extract the billing sidecar and the defense handlers as pipeline stages inside O
 - Keep both repos independently usable — the deployer orchestrates them (shared entrypoint, separate repos), so a user who only wants the Kiro path still runs `kiro-owl-agent` alone.
 - The deployer must re-run the existing idempotent 12-step install pipeline (swap guard, memory accounting, systemd units, health checks) and declare `MemoryMax` on every unit it creates.
 
-## Additional Companion Repos (6–9)
+## Additional Companion Repos (6–10)
 
-### 6. freebuff-proxy — Stealth & Session Layer (High)
+### 6. hermes-disguise — Stealth & Fingerprinting (High)
+
+[marktantongco/hermes-disguise](https://github.com/marktantongco/hermes-disguise) is the browser-like TLS fingerprint and proxy rotation disguise kit. It sits at the very edge of the outbound path so the gateway itself looks like a normal client before the request even becomes an Orca v4 race.
+
+- **Integration — Chain as client disguise (Option A):** put Hermes in front of Orca v4's outbound layer so every request leaves the host with a browser-shaped TLS posture and rotating egress. This is the first layer anti-bot systems see, which is why it belongs ahead of freebuff-proxy's egress hop.
+- **Integration — Merge the fingerprint module (Option B):** mount Hermes' browser-like TLS shaping as a transport stage inside the v4 egress path so the disguise travels with the router without an extra process.
+- **Placement:** edge-of-egress; declare `MemoryMax` (~64 MB) if run as its own process, and gate it behind the same circuit-breaker registry as the rest of the pipeline so a dead disguise module degrades gracefully instead of hanging the outbound path.
+
+### 7. freebuff-proxy — Stealth & Session Layer (High)
 
 [marktantongco/freebuff-proxy](https://github.com/marktantongco/freebuff-proxy) is the Go gateway core: JA3 stealth transport, a multi-token session pool, and a SOCKS5 proxy pool. Orca v4's provider calls are fingerprintable and static; this layer makes every outbound race look like a real browser.
 
 - **Integration — Chain as egress (Option A):** point Orca v4's provider connections at freebuff-proxy so every race is issued over JA3-shaped TLS with warm session tokens and rotating SOCKS5 egress.
-- **Integration — Merge as stage (Option B):** expose JA3 shaping and the token pool behind a local hop the router treats as its egress transport — routing decisions stay unchanged.
+- **Integration — Merge as stage (Option B): ** expose JA3 shaping and the token pool behind a local hop the router treats as its egress transport — routing decisions stay unchanged.
 - **Placement:** sits *behind* the routing decision (egress), runs as its own Go process — declare `MemoryMax` (~96 MB) and keep it outside the router's event loop.
 
-### 7. unified-owl — Resilient Access & Routing (Medium-High)
+### 8. unified-owl — Resilient Access & Routing (Medium-High)
 
 [marktantongco/unified-owl](https://github.com/marktantongco/unified-owl) merges six repos into one resilient access engine: proxy evasion, DNS tunneling, and cost-optimized routing via NadirClaw.
 
@@ -158,21 +167,75 @@ Extract the billing sidecar and the defense handlers as pipeline stages inside O
 - **Integration — Race strategy:** adopt NadirClaw's cost-tier decisions as an Orca v4 strategy — simple prompts to cheap models, complex prompts to premium (40-70% measured savings).
 - **Placement:** on-demand failover only, no fixed footprint while idle — gate it behind the same circuit-breaker registry so a dead fallback degrades gracefully instead of hanging the race.
 
-### 8. owl-dns-synergy — DNS Resilience (Medium)
+### 9. owl-dns-synergy — DNS Resilience (Medium)
 
 [marktantongco/owl-dns-synergy](https://github.com/marktantongco/owl-dns-synergy) is the unified dual-channel resilient access engine (v2.5) with AutoClaw ecosystem synergy enhancements.
 
 - **Integration — Resolution layer:** route Orca v4's upstream lookups through the dual-channel DNS engine so provider endpoints stay resolvable when standard DNS is blocked or poisoned.
 - **Integration — Failover trigger:** treat DNS health like a circuit breaker — poisoned resolution trips traffic to the tunnel channel automatically.
-- **Placement:** network-level, ahead of connection setup; shares the failover path with unified-owl (repo 7) and adds no per-request memory inside the router.
+- **Placement:** network-level, ahead of connection setup; shares the failover path with unified-owl (repo 9) and adds no per-request memory inside the router.
 
-### 9. autoclaw-autologin — GLM Token Harvesting (Medium)
+### 10. autoclaw-autologin — GLM Token Harvesting (Medium)
 
 [marktantongco/autoclaw-autologin](https://github.com/marktantongco/autoclaw-autologin) is an OpenAI-compatible free LLM proxy (v2.7) with OAuth token harvesting, Google SSO, and token rotation.
 
 - **Integration — Provider registration:** register its GLM endpoint in Orca v4's routing table as a first-class free provider — the OpenAI-compatible shape needs no protocol translation.
 - **Integration — Token lifecycle:** AutoClaw's harvester and rotation keep the GLM OAuth tokens fresh so the provider never expires out of the race (observe in log-only mode first).
 - **Placement:** provider-side; runs beside the Kiro Gateway with its own `MemoryMax` — no changes to radix matching or translation.
+
+### 11. autoclaw-autologin — GLM Token Harvesting (Medium)
+
+[marktantongco/hermes-disguise](https://github.com/marktantongco/hermes-disguise) is the browser-like TLS fingerprint and proxy rotation disguise kit. It sits at the very edge of the outbound path so the gateway itself looks like a normal client before the request even becomes an Orca v4 race.
+
+- **Integration — Chain as client disguise (Option A):** put Hermes in front of Orca v4's outbound layer so every request leaves the host with a browser-shaped TLS posture and rotating egress. This is the first layer anti-bot systems see, which is why it belongs ahead of freebuff-proxy's egress hop.
+- **Integration — Merge the fingerprint module (Option B):** mount Hermes' browser-like TLS shaping as a transport stage inside the v4 egress path so the disguise travels with the router without an extra process.
+- **Placement:** edge-of-egress; declare `MemoryMax` (~64 MB) if run as its own process, and gate it behind the same circuit-breaker registry as the rest of the pipeline so a dead disguise module degrades gracefully instead of hanging the outbound path.
+
+### 8. freebuff-proxy — Stealth & Session Layer (High)
+
+[marktantongco/freebuff-proxy](https://github.com/marktantongco/freebuff-proxy) is the Go gateway core: JA3 stealth transport, a multi-token session pool, and a SOCKS5 proxy pool. Orca v4's provider calls are fingerprintable and static; this layer makes every outbound race look like a real browser.
+
+- **Integration — Chain as egress (Option A):** point Orca v4's provider connections at freebuff-proxy so every race is issued over JA3-shaped TLS with warm session tokens and rotating SOCKS5 egress.
+- **Integration — Merge as stage (Option B):** expose JA3 shaping and the token pool behind a local hop the router treats as its egress transport — routing decisions stay unchanged.
+- **Placement:** sits *behind* the routing decision (egress), runs as its own Go process — declare `MemoryMax` (~96 MB) and keep it outside the router's event loop.
+
+### 9. unified-owl — Resilient Access & Routing (Medium-High)
+
+[marktantongco/unified-owl](https://github.com/marktantongco/unified-owl) merges six repos into one resilient access engine: proxy evasion, DNS tunneling, and cost-optimized routing via NadirClaw.
+
+- **Integration — Fallback chain:** when Orca v4 detects blocked egress or provider fingerprinting, hand the request to unified-owl's evasion path instead of failing the race.
+- **Integration — Race strategy:** adopt NadirClaw's cost-tier decisions as an Orca v4 strategy — simple prompts to cheap models, complex prompts to premium (40-70% measured savings).
+- **Placement:** on-demand failover only, no fixed footprint while idle — gate it behind the same circuit-breaker registry so a dead fallback degrades gracefully instead of hanging the race.
+
+### 10. owl-dns-synergy — DNS Resilience (Medium)
+
+[marktantongco/owl-dns-synergy](https://github.com/marktantongco/owl-dns-synergy) is the unified dual-channel resilient access engine (v2.5) with AutoClaw ecosystem synergy enhancements.
+
+- **Integration — Resolution layer:** route Orca v4's upstream lookups through the dual-channel DNS engine so provider endpoints stay resolvable when standard DNS is blocked or poisoned.
+- **Integration — Failover trigger:** treat DNS health like a circuit breaker — poisoned resolution trips traffic to the tunnel channel automatically.
+- **Placement:** network-level, ahead of connection setup; shares the failover path with unified-owl (repo 9) and adds no per-request memory inside the router.
+
+### 11. autoclaw-autologin — GLM Token Harvesting (Medium)
+
+[marktantongco/autoclaw-autologin](https://github.com/marktantongco/autoclaw-autologin) is an OpenAI-compatible free LLM proxy (v2.7) with OAuth token harvesting, Google SSO, and token rotation.
+
+- **Integration — Provider registration:** register its GLM endpoint in Orca v4's routing table as a first-class free provider — the OpenAI-compatible shape needs no protocol translation.
+- **Integration — Token lifecycle:** AutoClaw's harvester and rotation keep the GLM OAuth tokens fresh so the provider never expires out of the race (observe in log-only mode first).
+- **Placement:** provider-side; runs beside the Kiro Gateway with its own `MemoryMax` — no changes to radix matching or translation.
+
+## 3 Use-Case Layers of the Full Stack
+
+### 1. Free AI Users — Free, private, unblocked, first-byte-fast access to many models at once
+
+This is the default path: a free user runs one install and gets a single OpenAI-compatible endpoint that races GitHub Copilot, Antigravity, Kiro Gateway, and GLM simultaneously, so the fastest free provider wins every time. Hermes-disguise and freebuff-proxy keep that traffic looking like a normal browser so anti-bot systems don't throttle the gateway itself; owl-dns-synergy and unified-owl keep access alive when DNS or egress is blocked; autoclaw-autologin keeps a free GLM provider permanently refreshed. The user pays $0, never shares their keys with a third-party gateway, and gets lower latency than picking one provider by hand.
+
+### 2. Developers — A self-hosted protocol-translation + routing engine they can build paid tooling and products on top of
+
+For developers, the stack is a local AI gateway backend they can extend: a Radix-routed OpenAI-compatible endpoint, real-time Anthropic↔OpenAI SSE translation, half-open circuit breakers, stream racing, and a plugin-shaped companion-repo surface. Developers can chain or merge billing (owl-forward-proxy), defense (owl-agent-proxy), stealth (hermes-disguise + freebuff-proxy), RAG (owl-agent), docs (owl-orca-ai-agentic-stack), deploys (kiro-owl-agent + owl-agent-installer), resilience (unified-owl + owl-dns-synergy), and token-sourced providers (autoclaw-autologin) without rewriting the router. That turns the gateway into a platform: build a hosted wrapper, an IDE plugin, a team dashboard, or a paid proxy layer on top, and keep the routing core untouched.
+
+### 3. Monetization — Turn the gateway + its layers into a billable service instead of a free hobby project
+
+For monetization, the same Stack becomes a commercial surface: owl-forward-proxy adds per-user authentication, tier rate limits, and a usage ledger (requests, tokens, stream-time) so you can charge for access; owl-agent-proxy adds a defensible edge that justifies premium tiers by sanitizing traffic and protecting provider quota; the stealth layers (hermes-disguise + freebuff-proxy) become a premium 'unblocked, anti-fingerprint' offering; owl-agent's RAG tool becomes a paid live-web/data feature; autoclaw-autologin's rotating GLM access becomes a free-but-fresh provider seat that can be metered; and the one-command Production Deployer makes the whole stack sellable as a deployable product rather than a README. Combined, the layers let you charge for reliability, privacy, stealth, data, and convenience — not just for the free providers themselves.
 
 ## Memory Budget (8 GB constraint)
 
@@ -194,9 +257,10 @@ Option B is the safer fit for the 8 GB profile; if Option A is used, declare `Me
 5. **Phase 5 — Knowledge base:** adopt owl-orca-ai-agentic-stack as the official docs site; rewrite content against v4 architecture; wire docs updates into every architecture change.
 6. **Phase 6 — RAG tool:** expose owl-agent as a tool module or internal API; run in observe-only (log-only) mode first, then enable live web data for models that request it.
 7. **Phase 7 — Production Deployer:** unify kiro-owl-agent + owl-agent-installer deployment logic into the one-command OWL-ORCA Production Deployer; validate on a clean 8 GB machine.
-8. **Phase 8 — Stealth egress:** chain freebuff-proxy behind Orca v4's provider connections; observe JA3 shaping, token rotation, and SOCKS5 egress in log-only mode before enforcing it for all races.
-9. **Phase 9 — Resilience:** wire unified-owl (evasion + NadirClaw cost routing) and owl-dns-synergy (dual-channel DNS) as failover paths; validate under simulated blocked egress and poisoned DNS.
-10. **Phase 10 — GLM provider:** register autoclaw-autologin's GLM endpoint in Orca v4's routing table; confirm OAuth harvest + rotation keeps tokens fresh without manual refreshes.
+8. **Phase 8 — Client disguise:** chain hermes-disguise in front of Orca v4's outbound layer and observe the browser-shaped TLS posture and egress rotation in log-only mode before enforcing it for all races.
+9. **Phase 9 — Stealth egress:** chain freebuff-proxy behind Orca v4's provider connections; observe JA3 shaping, token rotation, and SOCKS5 egress in log-only mode before enforcing it for all races.
+10. **Phase 10 — Resilience:** wire unified-owl (evasion + NadirClaw cost routing) and owl-dns-synergy (dual-channel DNS) as failover paths; validate under simulated blocked egress and poisoned DNS.
+11. **Phase 11 — GLM provider:** register autoclaw-autologin's GLM endpoint in Orca v4's routing table; confirm OAuth harvest + rotation keeps tokens fresh without manual refreshes.
 
 ## Verification Checklist
 

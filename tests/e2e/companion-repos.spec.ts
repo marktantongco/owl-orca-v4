@@ -10,6 +10,7 @@ const REPOS = [
   "unified-owl",
   "owl-dns-synergy",
   "autoclaw-autologin",
+  "hermes-disguise",
 ];
 
 const ROLES = [
@@ -22,6 +23,7 @@ const ROLES = [
   "Resilient Access & Routing",
   "DNS Resilience",
   "GLM Token Harvesting",
+  "Stealth & Fingerprinting",
 ];
 
 const SYNERGY = [
@@ -32,7 +34,7 @@ const SYNERGY = [
   "Operational · medium",
 ];
 
-const OPTION_LABELS = ["Chain", "Merge", "Tool", "API", "Adopt", "Sync", "One-command", "Orchestrated", "Tunnel", "Failover", "Provider", "Rotate"];
+const OPTION_LABELS = ["Chain", "Merge", "Tool", "API", "Adopt", "Sync", "One-command", "Orchestrated", "Tunnel", "Failover", "Provider", "Rotate", "Chain", "Merge"];
 
 test.describe("companion repo showcase", () => {
   test("renders all nine repos with roles, synergy tiers, and options", async ({
