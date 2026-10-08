@@ -1711,6 +1711,90 @@ function ProxyEcosystemSection() {
       ],
       optionLabels: ["One-command", "Orchestrated"],
     },
+    {
+      repo: "freebuff-proxy",
+      version: "Go gateway core — JA3 stealth transport, multi-token session pool, SOCKS5 proxy pool",
+      url: "https://github.com/marktantongco/freebuff-proxy",
+      role: "Stealth & Session Layer",
+      icon: "stealth" as const,
+      synergy: "High synergy",
+      hoverClass: "hover:border-owl-magenta/40 hover:shadow-[0_0_24px_rgba(224,64,251,0.12)]",
+      roleBadgeClass: "border-owl-magenta/60 text-owl-magenta bg-owl-magenta/15",
+      gap: "Orca v4's outbound calls are plainly identifiable — no JA3 fingerprint shaping, no warm session-token pool, and no rotating SOCKS5 egress, so anti-bot defenses can fingerprint and throttle every provider race.",
+      adds: [
+        "JA3 stealth transport that blends outbound TLS fingerprints with real browsers to slip past anti-bot checks",
+        "Multi-token session pool keeps provider sessions warm and rotates identities before rate limits bite",
+        "SOCKS5 proxy pool gives every upstream race region-aware, resilient egress",
+      ],
+      options: [
+        "Chain as egress: point Orca v4's provider connections through freebuff-proxy so every race runs over stealth transport.",
+        "Merge the transport: mount JA3 shaping and the session pool as an egress stage inside the v4 router.",
+      ],
+      optionLabels: ["Chain", "Merge"],
+    },
+    {
+      repo: "unified-owl",
+      version: "v1.1 — merged 6-repo resilient access engine: proxy evasion, DNS tunneling, NadirClaw cost routing",
+      url: "https://github.com/marktantongco/unified-owl",
+      role: "Resilient Access & Routing",
+      icon: "routing" as const,
+      synergy: "Medium-High synergy",
+      hoverClass: "hover:border-owl-green/40 hover:shadow-[0_0_24px_rgba(16,185,129,0.12)]",
+      roleBadgeClass: "border-owl-green/60 text-owl-green bg-owl-green/15",
+      gap: "Orca v4 races free providers but treats every query equally — no evasion when a provider blocks its egress, and no cost intelligence that routes simple prompts to cheap models and hard ones to premium.",
+      adds: [
+        "Proxy evasion keeps access alive when providers fingerprint or block Orca v4's outbound path",
+        "NadirClaw cost routing: simple queries to cheap models, complex ones to premium — 40-70% savings",
+        "Six repos merged into one resilient access engine instead of six overlapping tools",
+      ],
+      options: [
+        "Chain as fallback: when Orca v4 detects blocking or cost pressure, hand the request to unified-owl's evasion and routing path.",
+        "Merge the strategy: adopt NadirClaw's cost-tier decisions as a race-selection strategy inside Orca v4.",
+      ],
+      optionLabels: ["Chain", "Merge"],
+    },
+    {
+      repo: "owl-dns-synergy",
+      version: "v2.5 — unified dual-channel DNS resiliency engine with AutoClaw synergy",
+      url: "https://github.com/marktantongco/owl-dns-synergy",
+      role: "DNS Resilience",
+      icon: "dns" as const,
+      synergy: "Medium synergy",
+      hoverClass: "hover:border-owl-cyan/40 hover:shadow-[0_0_24px_rgba(0,212,255,0.12)]",
+      roleBadgeClass: "border-owl-cyan/60 text-owl-cyan bg-owl-cyan/15",
+      gap: "If upstream DNS is blocked or poisoned, Orca v4 can't even resolve provider endpoints — routing intelligence is useless when the network layer fails first.",
+      adds: [
+        "Dual-channel DNS keeps provider endpoints resolvable when standard resolution is blocked or poisoned",
+        "DNS tunneling provides a fallback path that survives censorship and resolver tampering",
+        "AutoClaw ecosystem synergy hardens the whole access layer around the gateway",
+      ],
+      options: [
+        "Tunnel: route Orca v4's upstream lookups through the dual-channel DNS engine whenever standard resolution fails.",
+        "Failover: treat DNS health like a circuit breaker — poisoned resolution trips to the tunnel automatically.",
+      ],
+      optionLabels: ["Tunnel", "Failover"],
+    },
+    {
+      repo: "autoclaw-autologin",
+      version: "v2.7 — OpenAI-compatible free LLM proxy with OAuth token harvesting & rotation",
+      url: "https://github.com/marktantongco/autoclaw-autologin",
+      role: "GLM Token Harvesting",
+      icon: "tokens" as const,
+      synergy: "Medium synergy",
+      hoverClass: "hover:border-owl-amber/40 hover:shadow-[0_0_24px_rgba(245,158,11,0.12)]",
+      roleBadgeClass: "border-owl-amber/60 text-owl-amber bg-owl-amber/15",
+      gap: "Orca v4's provider table has no persistent GLM source — free GLM access dies the moment its OAuth tokens expire, and nothing harvests or refreshes them.",
+      adds: [
+        "Google SSO OAuth harvesting mints fresh GLM tokens without manual logins",
+        "Token rotation keeps GLM sessions persistently alive so the provider never drops out of the race",
+        "OpenAI-compatible endpoint drops straight into Orca v4's routing table as a free provider",
+      ],
+      options: [
+        "Provider: register AutoClaw's harvested GLM models as a first-class provider in Orca v4's routing table.",
+        "Rotate: let AutoClaw keep the OAuth tokens fresh so the GLM entries never expire out of the race.",
+      ],
+      optionLabels: ["Provider", "Rotate"],
+    },
   ], []);
 
   const synergyFlow = useMemo(() => [
@@ -1718,7 +1802,8 @@ function ProxyEcosystemSection() {
     { label: "owl-forward-proxy", sub: "Auth · tiers · usage metering", colorClass: "text-owl-amber" },
     { label: "owl-agent-proxy", sub: "Cache · dedup · rate limit · defense", colorClass: "text-owl-magenta" },
     { label: "Orca v4", sub: "Radix routing · racing · circuits", colorClass: "text-owl-cyan" },
-    { label: "AI Providers", sub: "Copilot · Antigravity · Kiro", colorClass: "text-owl-green" },
+    { label: "freebuff-proxy", sub: "JA3 stealth · token & SOCKS5 pools", colorClass: "text-owl-magenta" },
+    { label: "AI Providers", sub: "Copilot · Antigravity · Kiro · GLM", colorClass: "text-owl-green" },
   ], []);
 
   return (
@@ -1741,7 +1826,7 @@ function ProxyEcosystemSection() {
             </span>
           </h2>
           <p className="text-foreground/90 max-w-2xl mx-auto">
-            Companion repos that plug into Orca v4 — billing, defense, live web data, docs, and deploys — plus how proxy architecture connects to psychology, economics, biology, and history. And a competitive analysis.
+            Companion repos that plug into Orca v4 — billing, defense, stealth, resilience, tokens, live web data, docs, and deploys — plus how proxy architecture connects to psychology, economics, biology, and history. And a competitive analysis.
           </p>
         </div>
 
@@ -1751,7 +1836,7 @@ function ProxyEcosystemSection() {
             Companion Repos for Orca v4
           </h3>
           <p className="text-sm text-foreground/80 text-center max-w-2xl mx-auto mb-8">
-            OWL-ORCA v4 owns intelligent routing — these sibling repos supply the layers it deliberately doesn&apos;t: billing at the edge, defense underneath it, live web data on demand, a v4 knowledge base, and one-command deploys.
+            OWL-ORCA v4 owns intelligent routing — these sibling repos supply the layers it deliberately doesn&apos;t: billing at the edge, defense underneath it, stealth egress behind it, resilient access and DNS failover around it, rotating GLM token providers, live web data on demand, a v4 knowledge base, and one-command deploys.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">
@@ -1771,6 +1856,14 @@ function ProxyEcosystemSection() {
                       <Database className="w-5 h-5 text-owl-green vivid-icon shrink-0" />
                     ) : r.icon === "docs" ? (
                       <BookOpen className="w-5 h-5 text-owl-cyan vivid-icon shrink-0" />
+                    ) : r.icon === "stealth" ? (
+                      <Lock className="w-5 h-5 text-owl-magenta vivid-icon shrink-0" />
+                    ) : r.icon === "routing" ? (
+                      <ArrowRightLeft className="w-5 h-5 text-owl-green vivid-icon shrink-0" />
+                    ) : r.icon === "dns" ? (
+                      <Terminal className="w-5 h-5 text-owl-cyan vivid-icon shrink-0" />
+                    ) : r.icon === "tokens" ? (
+                      <RotateCcw className="w-5 h-5 text-owl-amber vivid-icon shrink-0" />
                     ) : (
                       <Rocket className="w-5 h-5 text-owl-amber vivid-icon shrink-0" />
                     )}
@@ -1856,7 +1949,7 @@ function ProxyEcosystemSection() {
               ))}
             </div>
             <p className="text-xs text-foreground/60 text-center mt-4">
-              On demand: Orca v4 queries <span className="font-mono text-foreground/80">owl-agent</span> for live web data (RAG). The knowledge base and Production Deployer live outside the request path.
+              On demand: Orca v4 queries <span className="font-mono text-foreground/80">owl-agent</span> for live web data (RAG). Resilience sits beside the path — <span className="font-mono text-foreground/80">unified-owl</span> and <span className="font-mono text-foreground/80">owl-dns-synergy</span> fail over around blocked egress and poisoned DNS, while <span className="font-mono text-foreground/80">autoclaw-autologin</span> keeps GLM tokens rotating. The knowledge base and Production Deployer live outside the request path.
             </p>
           </div>
         </div>
