@@ -7,6 +7,10 @@ const REPOS = [
   "owl-agent-proxy",
   "owl-orca-ai-agentic-stack",
   "kiro-owl-agent + owl-agent-installer",
+  "freebuff-proxy",
+  "unified-owl",
+  "owl-dns-synergy",
+  "autoclaw-autologin",
 ];
 
 const ROLES = [
@@ -15,10 +19,15 @@ const ROLES = [
   "RAG & Scraping Engine",
   "Documentation & Knowledge Base",
   "Deployment Automation",
+  "Stealth & Session Layer",
+  "Resilient Access & Routing",
+  "DNS Resilience",
+  "GLM Token Harvesting",
 ];
 
 const SYNERGY = [
   "Medium-High synergy",
+  "Medium synergy",
   "Medium · non-code",
   "Operational · medium",
 ];
@@ -30,6 +39,10 @@ const OPTION_LABELS = [
   "Sync",
   "One-command",
   "Orchestrated",
+  "Tunnel",
+  "Failover",
+  "Provider",
+  "Rotate",
 ];
 
 describe("HomePage — companion repo showcase", () => {
@@ -40,7 +53,7 @@ describe("HomePage — companion repo showcase", () => {
     ).toBeTruthy();
   });
 
-  it("lists all five companion repos", () => {
+  it("lists all nine companion repos", () => {
     const { container } = render(<HomePage />);
     const text = container.textContent ?? "";
     for (const repo of REPOS) {
@@ -59,9 +72,9 @@ describe("HomePage — companion repo showcase", () => {
     }
   });
 
-  it("shows synergy tiers, including the two High-synergy cards", () => {
+  it("shows synergy tiers, including the three High-synergy cards", () => {
     render(<HomePage />);
-    expect(screen.getAllByText("High synergy")).toHaveLength(2);
+    expect(screen.getAllByText("High synergy")).toHaveLength(3);
     for (const tier of SYNERGY) {
       expect(screen.getAllByText(tier).length).toBeGreaterThan(0);
     }
@@ -69,9 +82,9 @@ describe("HomePage — companion repo showcase", () => {
 
   it("shows per-repo integration option labels", () => {
     render(<HomePage />);
-    // Chain/Merge appear twice (one per original card)
-    expect(screen.getAllByText("Chain")).toHaveLength(2);
-    expect(screen.getAllByText("Merge")).toHaveLength(2);
+    // Chain/Merge appear four times (billing, defense, stealth, resilience cards)
+    expect(screen.getAllByText("Chain")).toHaveLength(4);
+    expect(screen.getAllByText("Merge")).toHaveLength(4);
     for (const label of OPTION_LABELS) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);
     }

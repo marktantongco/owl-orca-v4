@@ -6,6 +6,10 @@ const REPOS = [
   "owl-agent",
   "owl-orca-ai-agentic-stack",
   "kiro-owl-agent + owl-agent-installer",
+  "freebuff-proxy",
+  "unified-owl",
+  "owl-dns-synergy",
+  "autoclaw-autologin",
 ];
 
 const ROLES = [
@@ -14,19 +18,24 @@ const ROLES = [
   "RAG & Scraping Engine",
   "Documentation & Knowledge Base",
   "Deployment Automation",
+  "Stealth & Session Layer",
+  "Resilient Access & Routing",
+  "DNS Resilience",
+  "GLM Token Harvesting",
 ];
 
 const SYNERGY = [
   "High synergy",
   "Medium-High synergy",
+  "Medium synergy",
   "Medium · non-code",
   "Operational · medium",
 ];
 
-const OPTION_LABELS = ["Chain", "Merge", "Tool", "API", "Adopt", "Sync", "One-command", "Orchestrated"];
+const OPTION_LABELS = ["Chain", "Merge", "Tool", "API", "Adopt", "Sync", "One-command", "Orchestrated", "Tunnel", "Failover", "Provider", "Rotate"];
 
 test.describe("companion repo showcase", () => {
-  test("renders all five repos with roles, synergy tiers, and options", async ({
+  test("renders all nine repos with roles, synergy tiers, and options", async ({
     page,
   }) => {
     await page.goto("/");
