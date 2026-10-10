@@ -1907,9 +1907,17 @@ function ProxyEcosystemSection() {
                   </div>
                 </div>
 
+                <div className="flex items-center gap-2 mb-3">
+                  <Badge
+                    variant="outline"
+                    className="border-foreground/20 text-foreground/70 bg-foreground/5"
+                  >
+                    {r.synergy}
+                  </Badge>
+                </div>
+
                 <p className="text-xs text-foreground/60 font-medium mb-3">{r.version}</p>
                 <p className="text-sm text-foreground/85 mb-4">{r.gap}</p>
-
                 <div className="space-y-2 mb-4">
                   {r.adds.map((a) => (
                     <div key={a} className="flex items-start gap-2">

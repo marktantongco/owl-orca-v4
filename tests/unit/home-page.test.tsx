@@ -25,24 +25,28 @@ const ROLES = [
   "DNS Resilience",
   "GLM Token Harvesting",
   "Stealth & Fingerprinting",
-];  const SYNERGY = [
-    "High synergy",
-    "Medium-High synergy",
-    "Medium synergy",
-    "Medium · non-code",
-    "Operational · medium",
-  ];  const OPTION_LABELS = [
-    "Tool",
-    "API",
-    "Adopt",
-    "Sync",
-    "One-command",
-    "Orchestrated",
-    "Tunnel",
-    "Failover",
-    "Provider",
-    "Rotate",
-  ];
+];
+
+const SYNERGY = [
+  "High synergy",
+  "Medium-High synergy",
+  "Medium synergy",
+  "Medium · non-code",
+  "Operational · medium",
+];
+
+const OPTION_LABELS = [
+  "Tool",
+  "API",
+  "Adopt",
+  "Sync",
+  "One-command",
+  "Orchestrated",
+  "Tunnel",
+  "Failover",
+  "Provider",
+  "Rotate",
+];
 
 describe("HomePage — companion repo showcase", () => {
   it("renders the showcase section heading", () => {
@@ -52,22 +56,19 @@ describe("HomePage — companion repo showcase", () => {
     ).toBeTruthy();
   });
 
-  it("lists all ten companion repos", () => {
+  it("lists all ten companion repos with unique copy", () => {
     const { container } = render(<HomePage />);
-
-    // Reinstate the synergy test's old behavior as a dedicated assertion so
-    // the synergy test no longer asserts a count that depends on card order.
-    expect(container.textContent ?? "").toContain("High synergy");
-    expect((container.textContent ?? "").match(/High synergy/g)?.length).toBe(4);
-
     const text = container.textContent ?? "";
+    expect(text).toContain("High synergy");
+    // Exact badge match: "Medium-High synergy" badges must not be double-counted
+    expect(screen.getAllByText("High synergy")).toHaveLength(4);
     for (const repo of REPOS) {
       expect(text).toContain(repo);
     }
     // owl-agent card is distinct from owl-agent-proxy: assert its unique copy
     expect(text).toContain("Unified Proxy Ecosystem Builder");
     expect(text).toContain("RAG & Scraping Engine");
-    // hermes-disguise is the new stealth+disguise card: assert its unique copy
+    // hermes-disguise is the stealth+disguise card: assert its unique copy
     expect(text).toContain("Browser-shaped TLS fingerprint");
     expect(text).toContain("Stealth & Fingerprinting");
   });
@@ -84,17 +85,13 @@ describe("HomePage — companion repo showcase", () => {
     const { container } = render(<HomePage />);
     const text = container.textContent ?? "";
     expect(text).toContain("High synergy");
-    // Four cards carry High synergy: billing, defense, hermes-disguise, freebuff-proxy
-    expect((text.match(/High synergy/g) || []).length).toBe(4);
+    expect(screen.getAllByText("High synergy")).toHaveLength(4);
     expect(text).toContain("hermes-disguise");
     for (const tier of SYNERGY) {
       expect(text).toContain(tier);
     }
   });
 
-  it("lists all ten companion repos", () => {
-    const { container } = render(<HomePage />);
-    const text = container.textContent ?? "";
   it("shows per-repo integration option labels", () => {
     render(<HomePage />);
     // Chain: billing + defense + hermes + freebuff + unified-owl = 5
