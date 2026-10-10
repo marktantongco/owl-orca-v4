@@ -11,6 +11,7 @@ const REPOS = [
   "unified-owl",
   "owl-dns-synergy",
   "autoclaw-autologin",
+  "hermes-disguise",
 ];
 
 const ROLES = [
@@ -23,9 +24,11 @@ const ROLES = [
   "Resilient Access & Routing",
   "DNS Resilience",
   "GLM Token Harvesting",
+  "Stealth & Fingerprinting",
 ];
 
 const SYNERGY = [
+  "High synergy",
   "Medium-High synergy",
   "Medium synergy",
   "Medium · non-code",
@@ -53,15 +56,21 @@ describe("HomePage — companion repo showcase", () => {
     ).toBeTruthy();
   });
 
-  it("lists all nine companion repos", () => {
+  it("lists all ten companion repos with unique copy", () => {
     const { container } = render(<HomePage />);
     const text = container.textContent ?? "";
+    expect(text).toContain("High synergy");
+    // Exact badge match: "Medium-High synergy" badges must not be double-counted
+    expect(screen.getAllByText("High synergy")).toHaveLength(4);
     for (const repo of REPOS) {
       expect(text).toContain(repo);
     }
     // owl-agent card is distinct from owl-agent-proxy: assert its unique copy
     expect(text).toContain("Unified Proxy Ecosystem Builder");
     expect(text).toContain("RAG & Scraping Engine");
+    // hermes-disguise is the stealth+disguise card: assert its unique copy
+    expect(text).toContain("Browser-shaped TLS fingerprint");
+    expect(text).toContain("Stealth & Fingerprinting");
   });
 
   it("shows every role badge", () => {
@@ -72,19 +81,23 @@ describe("HomePage — companion repo showcase", () => {
     }
   });
 
-  it("shows synergy tiers, including the three High-synergy cards", () => {
-    render(<HomePage />);
-    expect(screen.getAllByText("High synergy")).toHaveLength(3);
+  it("shows synergy tiers, including the four High-synergy cards", () => {
+    const { container } = render(<HomePage />);
+    const text = container.textContent ?? "";
+    expect(text).toContain("High synergy");
+    expect(screen.getAllByText("High synergy")).toHaveLength(4);
+    expect(text).toContain("hermes-disguise");
     for (const tier of SYNERGY) {
-      expect(screen.getAllByText(tier).length).toBeGreaterThan(0);
+      expect(text).toContain(tier);
     }
   });
 
   it("shows per-repo integration option labels", () => {
     render(<HomePage />);
-    // Chain/Merge appear four times (billing, defense, stealth, resilience cards)
-    expect(screen.getAllByText("Chain")).toHaveLength(4);
-    expect(screen.getAllByText("Merge")).toHaveLength(4);
+    // Chain: billing + defense + hermes + freebuff + unified-owl = 5
+    // Merge: billing + defense + hermes + freebuff + unified-owl = 5
+    expect(screen.getAllByText("Chain")).toHaveLength(5);
+    expect(screen.getAllByText("Merge")).toHaveLength(5);
     for (const label of OPTION_LABELS) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);
     }
