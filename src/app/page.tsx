@@ -33,6 +33,7 @@ import {
   Rocket,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { REPO_RAW_BASE, REPO_URL, INSTALL_COMMAND } from "@/lib/site";
 
 /* Simple GitHub SVG icon since lucide-react doesn't export one */
 function GithubIcon({ className }: { className?: string }) {
@@ -412,7 +413,7 @@ function NavBar() {
             })}
             <Separator orientation="vertical" className="mx-2 h-5 bg-white/10" />
             <a
-              href="https://github.com/marktantongco/owl-orca-v3"
+              href={REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-foreground/80 hover:text-white transition-colors"
@@ -460,7 +461,7 @@ function NavBar() {
                 );
               })}
               <a
-                href="https://github.com/marktantongco/owl-orca-v3"
+                href={REPO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3 py-2 text-sm text-foreground/80 hover:text-white transition-colors"
@@ -576,7 +577,7 @@ function HeroSection() {
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </a>
           <a
-            href="https://github.com/marktantongco/owl-orca-v3"
+            href={REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/14 text-foreground/80 hover:text-white hover:bg-white/10 transition-all"
@@ -2256,8 +2257,7 @@ function QuickInstallSection() {
   const { ref, visible } = useSectionReveal();
   const [copied, setCopied] = useState(false);
 
-  const installCmd =
-    'curl -fsSL https://raw.githubusercontent.com/marktantongco/owl-orca-v3/main/install.sh | bash';
+  const installCmd = INSTALL_COMMAND;
 
   const handleCopy = useCallback(() => {
     try {
@@ -2357,7 +2357,7 @@ function QuickInstallSection() {
                 <span className="text-owl-cyan">curl</span>{" "}
                 <span className="text-owl-magenta">-fsSL</span>{" "}
                 <span className="text-yellow-400">
-                  https://raw.githubusercontent.com/marktantongco/owl-orca-v3/main/install.sh
+                  {`${REPO_RAW_BASE}/install.sh`}
                 </span>{" "}
                 <span className="text-owl-magenta">|</span>{" "}
                 <span className="text-owl-cyan">bash</span>
@@ -2750,7 +2750,7 @@ function Footer() {
             <h4 className="text-sm font-bold text-foreground/80 mb-3">Project</h4>
             <div className="space-y-2">
               <a
-                href="https://github.com/marktantongco/owl-orca-v3"
+                href={REPO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm text-foreground/80 hover:text-owl-cyan transition-colors"
@@ -2760,7 +2760,7 @@ function Footer() {
                 GitHub Repository
               </a>
               <a
-                href="https://github.com/marktantongco/owl-orca/blob/main/LICENSE"
+                href={`${REPO_URL}/blob/main/LICENSE`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm text-foreground/80 hover:text-owl-cyan transition-colors"
@@ -2770,7 +2770,7 @@ function Footer() {
                 MIT License
               </a>
               <a
-                href="https://github.com/marktantongco/owl-orca/issues"
+                href={`${REPO_URL}/issues`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm text-foreground/80 hover:text-owl-cyan transition-colors"
@@ -2835,8 +2835,14 @@ export default function HomePage() {
   return (
     <ErrorBoundary sectionName="Root">
       <div className="min-h-screen flex flex-col animated-gradient-bg">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-owl-cyan focus:text-[#0a0a1a] focus:font-semibold"
+        >
+          Skip to content
+        </a>
         <NavBar />
-        <main role="main" className="flex-1">
+        <main id="main-content" role="main" className="flex-1 scroll-mt-20">
           <ErrorBoundary sectionName="Hero">
             <HeroSection />
           </ErrorBoundary>

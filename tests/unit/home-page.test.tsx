@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import HomePage from "@/app/page";
+import { REPO_URL } from "@/lib/site";
 
 const REPOS = [
   "owl-forward-proxy",
@@ -101,5 +102,40 @@ describe("HomePage — companion repo showcase", () => {
   it("renders without tripping the error boundary", () => {
     const { container } = render(<HomePage />);
     expect(container.textContent ?? "").not.toContain("Something went wrong");
+  });
+});
+
+describe("HomePage — links & accessibility", () => {
+  it("has no stale repo links; GitHub CTAs point at the current repo", () => {
+    const { container } = render(<HomePage />);
+    const hrefs = Array.from(container.querySelectorAll("a[href]"))
+      .map((a) => a.getAttribute("href") ?? "");
+
+    // The repo was renamed to owl-orca-v4; older links 404 or go stale.
+    for (const href of hrefs) {
+      expect(href).not.toContain("/owl-orca-v3");
+      expect(href).not.toMatch(/github\.com\/marktantongco\/owl-orca(\/|$)/);
+    }
+    expect(hrefs).toContain(REPO_URL);
+    expect(hrefs).toContain(`${REPO_URL}/blob/main/LICENSE`);
+    expect(hrefs).toContain(`${REPO_URL}/issues`);
+  });
+
+  it("one-line installer targets the current repo", () => {
+    const { container } = render(<HomePage />);
+    const text = container.textContent ?? "";
+    expect(text).toContain(
+      "https://raw.githubusercontent.com/marktantongco/owl-orca-v4/main/install.sh"
+    );
+    expect(text).not.toContain(
+      "raw.githubusercontent.com/marktantongco/owl-orca-v3/"
+    );
+  });
+
+  it("provides a skip-to-content link targeting the main landmark", () => {
+    const { container } = render(<HomePage />);
+    const skip = screen.getByRole("link", { name: "Skip to content" });
+    expect(skip.getAttribute("href")).toBe("#main-content");
+    expect(container.querySelector("#main-content")).toBeTruthy();
   });
 });
