@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { REPO_URL, SITE_URL, SITE_VERSION } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,10 +13,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_TITLE = "OWL-ORCA — AI Gateway with Stream Racing, Protocol Translation & Circuit Breakers";
+const SITE_DESCRIPTION =
+  "Self-hosted AI gateway that aggregates free-tier providers into a single OpenAI-compatible endpoint. Race multiple providers, first byte wins. Circuit Breaker Demos, Protocol Translation Visualization, proxy comparison.";
+
 export const metadata: Metadata = {
-  title: "OWL-ORCA — AI Gateway with Stream Racing, Protocol Translation & Circuit Breakers",
-  description:
-    "Self-hosted AI gateway that aggregates free-tier providers into a single OpenAI-compatible endpoint. Race multiple providers, first byte wins. Circuit Breaker Demos, Protocol Translation Visualization, proxy comparison.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
   keywords: [
     "OWL-ORCA",
     "AI gateway",
@@ -27,12 +32,54 @@ export const metadata: Metadata = {
     "proxy comparison",
   ],
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+  },
+  alternates: {
+    canonical: "/",
   },
   openGraph: {
-    title: "OWL-ORCA — AI Gateway",
-    description: "Free AI for everyone. Race multiple providers. First byte wins.",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: "OWL-ORCA",
     type: "website",
+    locale: "en_US",
+    images: [
+      {
+        url: "/architecture-schematic.png",
+        width: 1200,
+        height: 600,
+        alt: "OWL-ORCA Architecture Schematic — clients through proxy and router to AI providers",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/architecture-schematic.png"],
+  },
+};
+
+/* JSON-LD structured data for search engines and social crawlers */
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "OWL-ORCA",
+  description: SITE_DESCRIPTION,
+  url: SITE_URL,
+  codeRepository: REPO_URL,
+  license: "https://opensource.org/licenses/MIT",
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Linux (Ubuntu 22.04/24.04 LTS, systemd)",
+  softwareVersion: SITE_VERSION,
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
   },
 };
 
@@ -48,6 +95,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-screen flex flex-col bg-background text-foreground">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         {children}
       </body>
     </html>

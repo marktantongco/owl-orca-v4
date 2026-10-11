@@ -6,12 +6,12 @@
 
 **Free AI for everyone. Race multiple providers. First byte wins.**
 
-[![Version](https://img.shields.io/badge/version-8.0.0-blue.svg)](https://github.com/marktantongco/owl-orca-v3-v3)
+[![Version](https://img.shields.io/badge/version-8.0.0-blue.svg)](https://github.com/marktantongco/owl-orca-v4)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Shell](https://img.shields.io/badge/bash-5.0%2B-orange.svg)](https://www.gnu.org/software/bash/)
 [![Python](https://img.shields.io/badge/python-3.10%2B-yellow.svg)](https://www.python.org/)
-[![RAM](https://img.shields.io/badge/RAM-8GB%20Optimized-purple.svg)](https://github.com/marktantongco/owl-orca-v3-v3)
-[![UI](https://img.shields.io/badge/UI-Vivid%20v2-cyan.svg)](https://owl-orca-v3.vercel.app)
+[![RAM](https://img.shields.io/badge/RAM-8GB%20Optimized-purple.svg)](https://github.com/marktantongco/owl-orca-v4)
+[![UI](https://img.shields.io/badge/UI-Vivid%20v3-cyan.svg)](https://owl-orca-v3.vercel.app)
 [![Deploy](https://img.shields.io/badge/Vercel-Live-000000?logo=vercel)](https://owl-orca-v3.vercel.app)
 
 </div>
@@ -217,11 +217,11 @@ CLOSED ────(5 consecutive failures)────▶ OPEN
 
 ```bash
 # One-line install (recommended)
-curl -fsSL https://raw.githubusercontent.com/marktantongco/owl-orca-v3/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/marktantongco/owl-orca-v4/main/install.sh | bash
 
 # Or clone and run locally
-git clone https://github.com/marktantongco/owl-orca-v3.git
-cd owl-orca
+git clone https://github.com/marktantongco/owl-orca-v4.git
+cd owl-orca-v4
 chmod +x install.sh
 ./install.sh
 ```
